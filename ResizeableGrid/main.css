@@ -1,0 +1,63 @@
+/* Visual Aids */
+
+html, body {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    margin: 0;
+    border: 0;
+    padding: 0;
+}
+
+.container {
+    margin-top: 50px;
+    min-height: 100%;
+}
+
+.row {
+    background-color: rgba(189, 195, 199, 0.25);
+}
+
+.row:hover {
+    background-color: rgba(189, 195, 199, 0.5);
+}
+
+.resizable-column {
+    padding: 0 !important;
+}
+
+.resizable-row > .col-1,
+.resizable-row > .col-2,
+.resizable-row > .col-3,
+.resizable-row > .col-4,
+.resizable-row > .col-5,
+.resizable-row > .col-6,
+.resizable-row > .col-7,
+.resizable-row > .col-8,
+.resizable-row > .col-9,
+.resizable-row > .col-10,
+.resizable-row > .col-11,
+.resizable-row > .col-12 {
+    min-height: 100px;
+}
+
+/* Resizable Grid */
+
+.resizable-grid > .resizable-row > .resizable-column-handle {
+    z-index: 100;
+    top: 0;
+    width: 6px;
+    margin: 0 -3px;
+    cursor: col-resize;
+    background-color: darkgray;
+}
+
+.resizable-grid-resizing {
+    cursor: col-resize;
+}
+
+.resizable-column-handle-resizing {
+    background-color:black !important;
+}
