@@ -58,7 +58,7 @@
                 }
 
                 self.setValue((isNaN(newValue)) ? 0 : newValue);
-                self._formatInput();
+                //self._formatInput(); //TODO: - fix the function for things like -, 0x, 0b
             });
 
             this.input.on("keydown", function (e) {
@@ -87,12 +87,15 @@
                     }
                 }
 
-                var keyString = String.fromCharCode(event.keyCode);
+                let charCode = event.keyCode - 48 * Math.floor(event.keyCode / 48);
+                let keyString = String.fromCharCode((96 <= event.keyCode) ? charCode: event.keyCode);
                 var currentValue = self.input.val();
                 var futureValue = `${currentValue.slice(0, e.target.selectionStart)}${keyString}${currentValue.slice(e.target.selectionEnd, currentValue.length)}`
 
+                console.log(keyString, futureValue);
+
                 if (!e.ctrlKey && !e.altKey && e.keyCode !== 8) {
-                    if(!self._validateInput(futureValue)) return false;
+                    if (!self._validateInput(futureValue)) return false;
                 }
             });
 
@@ -101,12 +104,12 @@
                 var currentValue = self.input.val();
                 var futureValue = `${currentValue.slice(0, e.target.selectionStart)}${pastedText}${currentValue.slice(e.target.selectionEnd, currentValue.length)}`
 
-                if(!self._validateInput(futureValue)) return false;
+                if (!self._validateInput(futureValue)) return false;
             });
 
         },
 
-        _formatInput: function() {
+        _formatInput: function () {
             var input = this.input.val();
             if (input.startsWith("0x") || input.startsWith("0X")) {
                 this.input.val(`0x${this.options.value.toString(16).toUpperCase()}`);
@@ -117,33 +120,33 @@
             }
         },
 
-        _validateInput: function(input) {
+        _validateInput: function (input) {
 
             var isDecimal = isHexadecimal = isBinary = false;
 
-            if(this.options.allowDecimal) {
-                isDecimal = /(^[0-9]*$)/.test(input);
+            if (this.options.allowDecimal) {
+                isDecimal = /(^(-?)[0-9]*$)/.test(input);
             }
 
-            if(this.options.allowHexadecimal) {
+            if (this.options.allowHexadecimal) {
                 isHexadecimal = /(^0[xX][0-9a-fA-F]*$)/.test(input);
             }
 
-            if(this.options.allowBinary) {
+            if (this.options.allowBinary) {
                 isBinary = /(^0[bB][10]*$)/.test(input);
             }
-             
+
             return (isDecimal || isHexadecimal || isBinary);
         },
 
-        setValue: function(value) {
+        setValue: function (value) {
             this.options.value = value;
 
-            if(value > this.options.max) {
+            if (value > this.options.max) {
                 this.options.value = this.options.max;
             }
 
-            if(value < this.options.min) {
+            if (value < this.options.min) {
                 this.options.value = this.options.min;
             }
         },
@@ -171,7 +174,7 @@
             this.stepUp(-step);
         },
 
-        value: function() {
+        value: function () {
             return this.options.value;
         },
 
