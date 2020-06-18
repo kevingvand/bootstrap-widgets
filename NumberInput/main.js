@@ -10,7 +10,8 @@
             allowBinary: true,
             allowHexadecimal: true,
             allowDecimal: true,
-            allowFloat: true
+            allowFloat: true,
+            seperateButtons: false,
         },
 
         _create: function () {
@@ -24,26 +25,53 @@
             var self = this;
 
             this.wrapper = $("<div>")
-                .addClass("number-input w-100 row")
+                .addClass("number-input w-100")
                 .insertAfter(this.input);
 
-            var inputContainer = $("<div>")
-                .addClass("col-10")
-                .append(this.input)
-                .appendTo(this.wrapper);
-
-            this.buttonSubtract = $("<button>")
-                .addClass("col-1 btn btn-primary")
+            var buttonStepDown = $("<button>")
+                .addClass("btn btn-primary")
                 .append($("<i>").addClass("fas fa-minus"))
-                .prependTo(this.wrapper)
                 .click(function () { self.stepDown(); });
 
-            this.buttonAdd = $("<button>")
-                .addClass("col-1 btn btn-primary")
+            var buttonStepUp = $("<button>")
+                .addClass("btn btn-primary")
                 .append($("<i>").addClass("fas fa-plus"))
-                .appendTo(this.wrapper)
                 .click(function () { self.stepUp(); });
 
+
+            if (this.options.seperateButtons) {
+
+                this.wrapper.addClass("row");
+
+                buttonStepDown
+                    .addClass("col-1")
+                    .appendTo(this.wrapper);
+
+                $("<div>")
+                    .addClass("col-10")
+                    .append(this.input)
+                    .appendTo(this.wrapper);
+
+                buttonStepUp
+                    .addClass("col-1")
+                    .appendTo(this.wrapper);
+
+            } else {
+
+                this.wrapper.addClass("input-group");
+
+                $("<div>")
+                    .addClass("input-group-prepend")
+                    .append(buttonStepDown)
+                    .appendTo(this.wrapper);
+
+                this.input.appendTo(this.wrapper);
+
+                $("<div>")
+                    .addClass("input-group-append")
+                    .append(buttonStepUp)
+                    .appendTo(this.wrapper);
+            }
 
             this.input.on("input", function (e) {
                 var inputValue = self.input.val();
@@ -55,7 +83,7 @@
                     newValue = parseInt(inputValue.substring(2), 2)
                 } else if (self.options.allowFloat) {
 
-                    if(inputValue.includes(",")) {
+                    if (inputValue.includes(",")) {
                         inputValue = inputValue.replace(",", ".");
                         self.input.val(inputValue);
                     }
