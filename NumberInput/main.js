@@ -4,11 +4,11 @@
 
         options: {
             value: 0,
-            step: 10,
-            min: -50,//Math.max(),
-            max: 50,//Math.min(),
-            allowBinary: false,
-            allowHexadecimal: false,
+            step: 1,
+            min: Math.max(),
+            max: Math.min(),
+            allowBinary: true,
+            allowHexadecimal: true,
             allowDecimal: true,
             allowFloat: true
         },
@@ -53,12 +53,20 @@
                     newValue = parseInt(inputValue.substring(2), 16);
                 } else if (inputValue.startsWith("0b") || inputValue.startsWith("0B")) {
                     newValue = parseInt(inputValue.substring(2), 2)
+                } else if (self.options.allowFloat) {
+
+                    if(inputValue.includes(",")) {
+                        inputValue = inputValue.replace(",", ".");
+                        self.input.val(inputValue);
+                    }
+
+                    newValue = parseFloat(inputValue);
+                    if (newValue === undefined) newValue = NaN;
                 } else {
                     newValue = parseInt(inputValue);
                 }
 
                 self.setValue((isNaN(newValue)) ? 0 : newValue);
-                //self._formatInput(); //TODO: - fix the function for things like -, 0x, 0b
             });
 
             this.input.on("keydown", function (e) {
@@ -88,11 +96,9 @@
                 }
 
                 let charCode = event.keyCode - 48 * Math.floor(event.keyCode / 48);
-                let keyString = String.fromCharCode((96 <= event.keyCode) ? charCode: event.keyCode);
+                let keyString = String.fromCharCode((96 <= event.keyCode) ? charCode : event.keyCode);
                 var currentValue = self.input.val();
                 var futureValue = `${currentValue.slice(0, e.target.selectionStart)}${keyString}${currentValue.slice(e.target.selectionEnd, currentValue.length)}`
-
-                console.log(keyString, futureValue);
 
                 if (!e.ctrlKey && !e.altKey && e.keyCode !== 8) {
                     if (!self._validateInput(futureValue)) return false;
@@ -109,23 +115,28 @@
 
         },
 
-        _formatInput: function () {
+        _setFormattedValue: function (value) {
             var input = this.input.val();
+
             if (input.startsWith("0x") || input.startsWith("0X")) {
-                this.input.val(`0x${this.options.value.toString(16).toUpperCase()}`);
+                this.input.val(`0x${value.toString(16).toUpperCase()}`);
             } else if (input.startsWith("0b") || input.startsWith("0B")) {
-                this.input.val(`0b${this.options.value.toString(2)}`);
+                this.input.val(`0b${value.toString(2)}`);
             } else {
-                this.input.val(this.options.value.toString(10));
+                this.input.val(value.toString());
             }
         },
 
         _validateInput: function (input) {
 
-            var isDecimal = isHexadecimal = isBinary = false;
+            var isDecimal = isHexadecimal = isBinary = isFloat = false;
 
             if (this.options.allowDecimal) {
                 isDecimal = /(^(-?)[0-9]*$)/.test(input);
+            }
+
+            if (this.options.allowFloat) {
+                isFloat = /^[0-9]+[,.]?[0-9]*[eE]?[-+]?[0-9]*$/.test(input);
             }
 
             if (this.options.allowHexadecimal) {
@@ -136,7 +147,7 @@
                 isBinary = /(^0[bB][10]*$)/.test(input);
             }
 
-            return (isDecimal || isHexadecimal || isBinary);
+            return (isDecimal || isHexadecimal || isBinary || isFloat);
         },
 
         setValue: function (value) {
@@ -144,10 +155,12 @@
 
             if (value > this.options.max) {
                 this.options.value = this.options.max;
+                this._setFormattedValue(this.options.max);
             }
 
             if (value < this.options.min) {
                 this.options.value = this.options.min;
+                this._setFormattedValue(this.options.min);
             }
         },
 
@@ -162,6 +175,8 @@
                 this.input.val(`0x${this.options.value.toString(16)}`);
             } else if (this.input.val().startsWith("0b")) {
                 this.input.val(`0b${this.options.value.toString(2)}`);
+            } else if (this.input.val().toLowerCase().includes("e")) {
+                this.input.val(this.options.value.toExponential());
             } else {
                 this.input.val(this.options.value);
             }
