@@ -23,15 +23,14 @@ $(function () {
                     .appendTo(this.wrapper)
                     .tagList()
                     .click(function () {
-                        self.selectListWrapper.show();
-                        self.searchInput.focus();
+                        self.showList();
                     }); 
 
                 this.searchInput = $("<input>")
                     .addClass("w-100 p-2 multi-combobox-seperator-bottom")
                     .attr("type", "text")
                     .attr("placeholder", "search...")
-                    .on('change keyup', function () {
+                    .on('change keyup', function (e) {
                         if ($(this).val().length === 0) {
                             self.searchClear.hide();
                         } else {
@@ -87,7 +86,23 @@ $(function () {
                     .append(this.selectList)
                     .insertAfter(this.tagList);
 
+            },
 
+            showList: function() {
+                var self = this;
+                this.selectListWrapper.slideToggle("fast");
+                self.searchInput.focus();
+                $(document).on("click", function() {
+                    self.hideList();
+                });
+            },
+
+            hideList: function() {
+                var $trigger = $(".multi-combobox-wrapper");
+                if($trigger !== event.target && !$trigger.has(event.target).length){
+                    this.selectListWrapper.slideUp("fast");
+                }
+                $(document).unbind("click", this.hideList)
             },
 
             _destroy: function () {

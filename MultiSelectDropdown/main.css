@@ -4,6 +4,7 @@ textarea:focus, input:focus{
 
 .multi-combobox-wrapper {
     cursor: pointer;
+    position: relative;
 }
 
 .tag-list {
@@ -22,6 +23,8 @@ textarea:focus, input:focus{
     border: 1px solid #ced4da;
     display: none;
     border-radius: .25rem;
+    position: absolute;
+    width: 100%;
 }
 
 .multi-combobox-wrapper .multi-combobox-wrapper-dropdown input {
