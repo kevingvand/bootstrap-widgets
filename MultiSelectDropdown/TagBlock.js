@@ -22,13 +22,13 @@ $(function () {
                 var self = this;
 
                 this.span = $("<span>")
-                    .addClass("m-1")
+                    .addClass("mx-1")
                     .text(this.options.text)
                     .appendTo(this.wrapper);
 
                 if (this.options.canClose) {
                     this.close = $("<span>")
-                        .addClass(" m-1")
+                        .addClass(" mx-1")
                         .click(function (e) {
                             self._trigger("closed",
                                 null,
@@ -49,8 +49,8 @@ $(function () {
                 return this.options.text;
             },
 
-            close: function () {
-                self._trigger("closed", null, { value: self.value(), text: self.text(), element: self.element });
+            closeTag: function () {
+                this._trigger("closed", null, { value: this.value(), text: this.text(), element: this.wrapper });
             },
 
             _destroy: function () {

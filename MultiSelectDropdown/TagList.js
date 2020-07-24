@@ -34,8 +34,8 @@ $(function () {
             _buildTag: function (tag) {
                 var self = this;
 
-                $("<div>")
-                    .addClass("tag m-1")
+                return $("<div>")
+                    .addClass("tag mx-1")
                     .appendTo(self.wrapper)
                     .tagBlock({ value: tag.value, text: tag.text },
                         {
@@ -59,10 +59,26 @@ $(function () {
 
             addTag: function (value, text) {
                 if (!text) text = value;
+
                 var tag = { value: value, text: text };
+                tag.element = this._buildTag(tag);
+
                 this.options.tags.push(tag);
-                this._buildTag(tag);
                 this._toggleNoTagsInfo();
+            },
+
+            closeTag: function (value, text) {
+                var tagIndex = -1;
+
+                while (true) {
+
+                    var tagIndex = this.options.tags.findIndex(tag => tag.value === value && tag.text === text);
+                    if (tagIndex < 0) {
+                        break;
+                    }
+
+                    $(this.options.tags[tagIndex].element).tagBlock("closeTag");
+                }
             },
 
             values: function () {
