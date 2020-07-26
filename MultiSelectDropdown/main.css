@@ -40,7 +40,7 @@ textarea:focus, input:focus{
     padding: 0;
     margin: 0;
     overflow: auto;
-    max-height: 300px;
+    max-height: 150px;
 }
 
 .input-overlay-button {
@@ -66,7 +66,7 @@ textarea:focus, input:focus{
     left: -1rem;
 }
 
-.multi-combobox-wrapper ul li:hover {
+.multi-combobox-wrapper ul li:hover, .multi-combobox-wrapper ul li.selected {
     background: #ced4da;;
 }
 

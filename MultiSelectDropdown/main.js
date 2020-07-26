@@ -16,7 +16,29 @@ $(function () {
 
                 this.wrapper = $("<div>")
                     .addClass("multi-combobox-wrapper w-100")
-                    .insertAfter(this.element);
+                    .insertAfter(this.element)
+                    .keyup(function () {
+                        if (event.key === "Escape") {
+                            self.selectListWrapper.slideUp("fast");
+                        }
+
+                        if (event.key === "ArrowUp") {
+                            self._moveSelection(true);
+                        }
+
+                        if (event.key === "ArrowDown") {
+                            self._moveSelection(false);
+                        }
+
+                        if (event.key === "Enter") {
+                            var $selectedItem = self.selectList.find("li.selected");
+                            if ($selectedItem.length) {
+                                var $combobox = $selectedItem.find(".multi-combobox-option");
+                                $combobox.prop("checked", !$combobox.prop("checked"));
+                                $combobox.trigger("change");
+                            }
+                        }
+                    });
 
                 this.tagList = $("<div>")
                     .addClass("multi-combobox-taglist form-control h-auto")
@@ -39,8 +61,31 @@ $(function () {
                     .on('change keyup', function (e) {
                         if ($(this).val().length === 0) {
                             self.searchClear.hide();
+                            self.selectList.children("li").show();
+                            self.selectAll.show();
+                            self.noResultsInfo.hide();
                         } else {
                             self.searchClear.show();
+                            var query = $(this).val().toLowerCase();
+
+                            var matchCount = 0;
+                            self.selectList.children("li").each(function () {
+                                if (!$(this).text().toLowerCase().includes(query)) {
+                                    $(this).hide();
+                                } else {
+                                    $(this).show();
+                                    matchCount++;
+                                }
+                            });
+
+                            if (!matchCount) {
+                                self.selectAll.hide();
+                                self.noResultsInfo.show();
+                            }
+                            else {
+                                self.selectAll.show();
+                                self.noResultsInfo.hide();
+                            }
                         }
                     });
 
@@ -48,6 +93,7 @@ $(function () {
                     .addClass("fas fa-times input-overlay-button")
                     .click(function () {
                         self.searchInput.val("");
+                        self.searchInput.trigger("change");
                         self.searchInput.focus();
                     })
                     .hide();
@@ -63,7 +109,7 @@ $(function () {
                             self._setSelectAll(isChecked);
 
                             self.selectList.find(".multi-combobox-option").each(function () {
-                                if($(this).is(":checked") === isChecked) return;
+                                if ($(this).is(":checked") === isChecked) return;
                                 $(this).prop("checked", isChecked);
                                 $(this).trigger("change");
                             })
@@ -72,6 +118,16 @@ $(function () {
                         .attr("for", "multi-combobox-select-all")
                         .addClass("custom-control-label w-100")
                         .text("Select All"));
+
+                this.noResultsInfo = $("<div>")
+                    .append($("<div>")
+                        .addClass("d-flex justify-content-center align-items-center")
+                        .append($("<i>")
+                            .addClass("fas fa-exclamation-circle m-2"))
+                        .append($("<p>")
+                            .addClass("my-2")
+                            .text("No items found")))
+                    .hide();
 
                 this.selectList = $("<ul>")
 
@@ -88,7 +144,7 @@ $(function () {
                                     var isChecked = $(this).is(":checked");
 
                                     if (isChecked) {
-                                        if(!self.selectList.find(".multi-combobox-option:not(:checked)").length)
+                                        if (!self.selectList.find(".multi-combobox-option:not(:checked)").length)
                                             self._setSelectAll(true);
 
                                         self.tagList.tagList("addTag", $option.val(), $option.text());
@@ -115,6 +171,7 @@ $(function () {
                         .append(this.searchClear))
                     .append(this.selectAll)
                     .append(this.selectList)
+                    .append(this.noResultsInfo)
                     .insertAfter(this.tagList);
 
                 $(document).on("click", function () {
@@ -122,9 +179,37 @@ $(function () {
                 });
             },
 
-            _setSelectAll: function(isChecked) {
+            _setSelectAll: function (isChecked) {
                 this.selectAll.find(".custom-control-label").text(isChecked ? "Deselect All" : "Select All");
                 this.selectAll.find(".custom-control-input").prop("checked", isChecked);
+            },
+
+            _moveSelection: function (moveUp) {
+
+                var selectedIndex = this.selectList.find("li.selected").first().index();
+
+                if(moveUp && selectedIndex <= 0) {
+                    this.selectList.find("li").removeClass("selected");
+                    this.searchInput.focus();
+                    return;
+                }
+
+                if (!moveUp && selectedIndex < 0) {
+                    var $selectedItem = this.selectList.find("li").first();
+
+                    $selectedItem.addClass("selected")
+                    $selectedItem.get(0).scrollIntoView();
+                    return;
+                }
+
+                var newIndex = selectedIndex + ((moveUp ? -1 : 1));
+                var $selectedItem = this.selectList.find("li").eq(newIndex);
+
+                if ($selectedItem.length) {
+                    this.selectList.find("li").removeClass("selected");
+                    $selectedItem.addClass("selected");
+                    $selectedItem.get(0).scrollIntoView();
+                }
             },
 
             showList: function () {
