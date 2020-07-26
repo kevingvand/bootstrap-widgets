@@ -1,5 +1,5 @@
 $(function () {
-    $.widget("custom.multiSelectCheckbox",
+    $.widget("custom.multiCombobox",
         {
             options: {
                 showDropdownIcon: true,
@@ -39,9 +39,10 @@ $(function () {
                             }
                         }
 
-                        if(event.altKey && event.key == "a") {
+                        if (event.altKey && event.key == "a") {
                             self._setSelectAll(!self.selectAll.find(".custom-control-input").prop("checked"));
                             self.selectAll.find(".custom-control-input").trigger("change");
+                            self.searchInput.focus();
                         }
                     });
 
@@ -53,12 +54,15 @@ $(function () {
                     .appendTo(this.wrapper)
                     .append(this.dropDownIconDown)
                     .tagList({
-                        closed: function (_, data) {
-                            var $checkbox = $(`#option-${data.value}`);
-                            $checkbox.prop("checked", false);
-                            self._setSelectAll(false);
-                        }
-                    })
+                        noTagsInfo: "No item(s) selected"
+                    },
+                        {
+                            closed: function (_, data) {
+                                var $checkbox = $(`#option-${data.value}`);
+                                $checkbox.prop("checked", false);
+                                self._setSelectAll(false);
+                            }
+                        })
                     .click(function () {
                         self.showList();
                     });
@@ -73,6 +77,10 @@ $(function () {
                             self.selectList.children("li").show();
                             self.selectAll.show();
                             self.noResultsInfo.hide();
+                            self._setSelectAllText(true);
+
+                            if (self.selectList.find(".multi-combobox-option:not(:checked)").length)
+                                self._setSelectAll(false);
                         } else {
                             self.searchClear.show();
                             var query = $(this).val().toLowerCase();
@@ -93,6 +101,7 @@ $(function () {
                                 self.noResultsInfo.show();
                             }
                             else {
+                                self._setSelectAllText(false)
                                 self.selectAll.show();
                                 self.noResultsInfo.hide();
                             }
@@ -109,7 +118,7 @@ $(function () {
                     .hide();
 
                 this.selectAll = $("<div>")
-                    .addClass("custom-control custom-checkbox multi-combobox-seperator-bottom")
+                    .addClass("custom-control custom-checkbox multi-combobox-seperator-bottom multi-combobox-select-all")
                     .append($("<input>")
                         .attr("id", "multi-combobox-select-all")
                         .attr("type", "checkbox")
@@ -118,7 +127,7 @@ $(function () {
                             var isChecked = $(this).is(":checked");
                             self._setSelectAll(isChecked);
 
-                            self.selectList.find(".multi-combobox-option").each(function () {
+                            self.selectList.find(".multi-combobox-option:visible").each(function () {
                                 if ($(this).is(":checked") === isChecked) return;
                                 $(this).prop("checked", isChecked);
                                 $(this).trigger("change");
@@ -141,9 +150,10 @@ $(function () {
 
                 this.selectList = $("<ul>")
 
-                this.element.children("option").each(function () {
+                this.element.children("option").each(function (index, _) {
                     var $option = $(this);
                     $("<li>")
+                        .attr("data-initial-index", index)
                         .append($("<div>")
                             .addClass("custom-control custom-checkbox")
                             .append($("<input>")
@@ -194,11 +204,17 @@ $(function () {
                 this.selectAll.find(".custom-control-input").prop("checked", isChecked);
             },
 
+            _setSelectAllText: function (allItems) {
+                var isChecked = this.selectAll.find(".custom-control-input").prop("checked");
+
+                this.selectAll.find(".custom-control-label").text(`${isChecked ? "Deselect" : "Select"} All ${allItems ? "" : "Results"}`);
+            },
+
             _moveSelection: function (moveUp) {
 
                 var selectedIndex = $.inArray(this.selectList.find("li.selected").get(0), this.selectList.find("li:visible"));
 
-                if(moveUp && selectedIndex <= 0) {
+                if (moveUp && selectedIndex <= 0) {
                     this.selectList.find("li").removeClass("selected");
                     this.searchInput.focus();
                     return;
@@ -243,16 +259,36 @@ $(function () {
             },
 
             slideList(close) {
-                if(close === undefined) 
+                var self = this;
+                if (close === undefined)
                     close = this.selectListWrapper.is(":visible");
 
-                if(close) {
+                if (close) {
                     this.dropDownIconDown.removeClass("flip");
                     this.selectListWrapper.slideUp("fast");
+                    this.searchInput.val("");
+                    this.searchInput.trigger("change");
                 } else {
                     this.dropDownIconDown.addClass("flip");
                     this.selectListWrapper.slideDown("fast");
+
+                    this.selectList.find("li").sort(function (a, b) {
+                        return ($(b).data("initialIndex")) < ($(a).data("initialIndex")) ? 1 : -1;
+                    }).appendTo(this.selectList);
+
+                    $(this.selectList.find(".multi-combobox-option:checked").get().reverse()).each(function () {
+                        $(this).parents("li").prependTo(self.selectList);
+                    });
+
+                    this.selectList.find(".multi-combobox-option").parents("li").removeClass("multi-combobox-seperator-bottom");
+
+                    if (!this.selectAll.find(".custom-control-input").prop("checked"))
+                        this.selectList.find(".multi-combobox-option:checked").last().parents("li").addClass("multi-combobox-seperator-bottom");
                 }
+            },
+
+            values() {
+              return this.tagList.tagList("values");  
             },
 
             _destroy: function () {
@@ -261,5 +297,5 @@ $(function () {
 
         });
 
-    $(".checkbox-select").multiSelectCheckbox();
+    $(".checkbox-select").multiCombobox();
 });

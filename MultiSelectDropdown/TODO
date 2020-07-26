@@ -1,9 +1,10 @@
-# Show selected items on top on next open.
++ Show selected items on top on next open.
 + Search
-# Select all on search results (custom text, select all --> select all results/deselect all results)
++ Select all on search results (custom text, select all --> select all results/deselect all results)
 + Info if no search result
-# dropdown icon in taglist
++ dropdown icon in taglist
 + close on escape
 + user arrow keys and enter to navigate/select
 + Make sure arrow keys still work on search
 + Add alt-a as a shortcut to toggle all
++ Improve taglist margin-y between tags on wrap

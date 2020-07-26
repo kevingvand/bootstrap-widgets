@@ -14,11 +14,15 @@ $(function () {
             _build: function () {
                 var self = this;
 
-                this.noTagsInfo = $("<span>")
-                    .append($("<i>")
-                        .addClass("fa fa-info-circle mx-2"))
-                    .append($("<span>")
-                        .text(self.options.noTagsInfo))
+                this.noTagsInfo = $("<div>")
+                    .addClass("m-1")
+                    .append(
+                        $("<span>")
+                            .append($("<i>")
+                                .addClass("fa fa-info-circle mx-2"))
+                            .append($("<span>")
+                                .text(self.options.noTagsInfo))
+                    )
                     .appendTo(this.wrapper);
 
                 if (self.options.tags.length) {
@@ -35,7 +39,7 @@ $(function () {
                 var self = this;
 
                 return $("<div>")
-                    .addClass("tag mx-1")
+                    .addClass("tag m-1")
                     .appendTo(self.wrapper)
                     .tagBlock({ value: tag.value, text: tag.text },
                         {

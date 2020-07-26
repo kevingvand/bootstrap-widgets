@@ -66,8 +66,8 @@ textarea:focus, input:focus{
     left: -1rem;
 }
 
-.multi-combobox-wrapper ul li:hover, .multi-combobox-wrapper ul li.selected {
-    background: #ced4da;;
+.multi-combobox-wrapper ul li:hover, .multi-combobox-wrapper ul li.selected, .multi-combobox-wrapper .multi-combobox-select-all:hover {
+    background: #ced4da;
 }
 
 .tag {
