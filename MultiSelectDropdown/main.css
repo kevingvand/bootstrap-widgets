@@ -87,3 +87,19 @@ textarea:focus, input:focus{
     cursor: pointer;
     color: #236350;
 }
+
+.dropdown-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    margin-top: -8px;
+    transition: transform .4s;
+    -webkit-transition: transform .4s;
+    -ms-transistion: transform .4s;
+}
+
+.flip {
+    transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+}

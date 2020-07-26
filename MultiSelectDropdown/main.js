@@ -2,7 +2,7 @@ $(function () {
     $.widget("custom.multiSelectCheckbox",
         {
             options: {
-
+                showDropdownIcon: true,
             },
 
             _create: function () {
@@ -19,7 +19,7 @@ $(function () {
                     .insertAfter(this.element)
                     .keyup(function () {
                         if (event.key === "Escape") {
-                            self.selectListWrapper.slideUp("fast");
+                            self.slideList(true);
                         }
 
                         if (event.key === "ArrowUp") {
@@ -38,11 +38,20 @@ $(function () {
                                 $combobox.trigger("change");
                             }
                         }
+
+                        if(event.altKey && event.key == "a") {
+                            self._setSelectAll(!self.selectAll.find(".custom-control-input").prop("checked"));
+                            self.selectAll.find(".custom-control-input").trigger("change");
+                        }
                     });
+
+                this.dropDownIconDown = $("<i>")
+                    .addClass("fas fa-caret-down dropdown-icon")
 
                 this.tagList = $("<div>")
                     .addClass("multi-combobox-taglist form-control h-auto")
                     .appendTo(this.wrapper)
+                    .append(this.dropDownIconDown)
                     .tagList({
                         closed: function (_, data) {
                             var $checkbox = $(`#option-${data.value}`);
@@ -72,6 +81,7 @@ $(function () {
                             self.selectList.children("li").each(function () {
                                 if (!$(this).text().toLowerCase().includes(query)) {
                                     $(this).hide();
+                                    $(this).removeClass("selected");
                                 } else {
                                     $(this).show();
                                     matchCount++;
@@ -186,7 +196,7 @@ $(function () {
 
             _moveSelection: function (moveUp) {
 
-                var selectedIndex = this.selectList.find("li.selected").first().index();
+                var selectedIndex = $.inArray(this.selectList.find("li.selected").get(0), this.selectList.find("li:visible"));
 
                 if(moveUp && selectedIndex <= 0) {
                     this.selectList.find("li").removeClass("selected");
@@ -195,7 +205,7 @@ $(function () {
                 }
 
                 if (!moveUp && selectedIndex < 0) {
-                    var $selectedItem = this.selectList.find("li").first();
+                    var $selectedItem = this.selectList.find("li:visible").first();
 
                     $selectedItem.addClass("selected")
                     $selectedItem.get(0).scrollIntoView();
@@ -203,7 +213,7 @@ $(function () {
                 }
 
                 var newIndex = selectedIndex + ((moveUp ? -1 : 1));
-                var $selectedItem = this.selectList.find("li").eq(newIndex);
+                var $selectedItem = this.selectList.find("li:visible").eq(newIndex);
 
                 if ($selectedItem.length) {
                     this.selectList.find("li").removeClass("selected");
@@ -217,7 +227,7 @@ $(function () {
 
                 var isTag = $(event.target).parents(".tag").length || $(event.target).is(".action-icon")
                 if (!isTag) {
-                    this.selectListWrapper.slideToggle("fast");
+                    this.slideList();
                 }
 
                 self.searchInput.focus();
@@ -227,9 +237,22 @@ $(function () {
                 var $trigger = $(".multi-combobox-wrapper");
                 var isTag = $(event.target).parents(".tag").length || $(event.target).is(".action-icon")
                 if ($trigger !== event.target && !$trigger.has(event.target).length && !isTag) {
-                    this.selectListWrapper.slideUp("fast");
+                    this.slideList(true);
                 }
 
+            },
+
+            slideList(close) {
+                if(close === undefined) 
+                    close = this.selectListWrapper.is(":visible");
+
+                if(close) {
+                    this.dropDownIconDown.removeClass("flip");
+                    this.selectListWrapper.slideUp("fast");
+                } else {
+                    this.dropDownIconDown.addClass("flip");
+                    this.selectListWrapper.slideDown("fast");
+                }
             },
 
             _destroy: function () {
