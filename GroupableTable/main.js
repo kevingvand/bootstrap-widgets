@@ -2,6 +2,7 @@ $(function () {
     $.widget("custom.groupableTable",
         {
             options: {
+                collapsibleGroups: true,
                 showDropdownIcon: true,
             },
 
@@ -13,23 +14,31 @@ $(function () {
             },
 
             _build: function () {
+                this._buildCollapsibleGroups();
+            },
+
+            _buildCollapsibleGroups : function() {
                 var self = this;
 
-                this.wrapper.find("[data-group-name]")
-                    .addClass("cursor-pointer")
-                    .each(function () {
-                        $(this).find("td").first().attr("colspan", self.columnCount - 1);
+                if (this.options.collapsibleGroups) {
+                    this.wrapper.find("[data-group-name]")
+                        .addClass("cursor-pointer")
+                        .each(function () {
+                            $(this).find("td").first().attr("colspan", self.columnCount - (self.options.showDropdownIcon ? 1 : 0));
 
-                        $("<td>")
-                            .addClass("text-right")
-                            .append($("<i>")
-                                .addClass("fas fa-caret-down dropdown-icon flip"))
-                            .appendTo($(this));
-                    })
-                    .click(function () {
-                        var name = $(this).attr("data-group-name");
-                        self._slideRowGroup(name);
-                    });
+                            if (self.options.showDropdownIcon) {
+                                $("<td>")
+                                    .addClass("text-right")
+                                    .append($("<i>")
+                                        .addClass("fas fa-caret-down dropdown-icon flip"))
+                                    .appendTo($(this));
+                            }
+                        })
+                        .click(function () {
+                            var name = $(this).attr("data-group-name");
+                            self._slideRowGroup(name);
+                        });
+                }
             },
 
             _slideRowGroup: function (name, close) {
