@@ -4,6 +4,7 @@ $(function () {
             options: {
                 collapsibleGroups: true,
                 showDropdownIcon: true,
+                renamableGroups: true,
             },
 
             _create: function () {
@@ -14,17 +15,32 @@ $(function () {
             },
 
             _build: function () {
-                this._buildCollapsibleGroups();
-            },
-
-            _buildCollapsibleGroups : function() {
                 var self = this;
 
+
+                var $rowHeaders = this.wrapper.find("[data-group-name]");
+
                 if (this.options.collapsibleGroups) {
-                    this.wrapper.find("[data-group-name]")
+                    $rowHeaders
                         .addClass("cursor-pointer")
                         .each(function () {
-                            $(this).find("td").first().attr("colspan", self.columnCount - (self.options.showDropdownIcon ? 1 : 0));
+                            var $nameCell = $(this).find("td").first();
+                            $nameCell.attr("colspan", self.columnCount - (self.options.showDropdownIcon ? 1 : 0));
+
+                            if (self.options.renamableGroups) {
+                                var text = $nameCell.text();
+                                $nameCell.text("");
+
+                                $("<span>")
+                                    .addClass("group-title")
+                                    .text(text)
+                                    .appendTo($nameCell)
+                                    .editableLabel({ enableDoubleClick: false }, {
+                                        "edited": function (_, data) {
+                                            self._renameGroup(data.element.parents("tr").attr("data-group-name"), data.value);
+                                        }
+                                    });
+                            }
 
                             if (self.options.showDropdownIcon) {
                                 $("<td>")
@@ -34,12 +50,37 @@ $(function () {
                                     .appendTo($(this));
                             }
                         })
-                        .click(function () {
-                            var name = $(this).attr("data-group-name");
-                            self._slideRowGroup(name);
-                        });
                 }
+
+                $rowHeaders.click(function () {
+                    var $this = $(this);
+                    if ($this.hasClass('clicked')) {
+                        $this.removeClass('clicked');
+
+                        // DOUBLE CLICK
+
+                        if (self.options.renamableGroups) {
+                            $this.find("span.group-title").editableLabel("toggle");
+                        }
+
+                    } else {
+                        $this.addClass('clicked');
+                        setTimeout(function () {
+                            if ($this.hasClass('clicked')) {
+                                $this.removeClass('clicked');
+
+                                // SINGLE CLICK
+
+                                if (self.options.collapsibleGroups) {
+                                    var name = $this.attr("data-group-name");
+                                    self._slideRowGroup(name);
+                                }
+                            }
+                        }, 250);
+                    }
+                });
             },
+
 
             _slideRowGroup: function (name, close) {
                 var self = this;
@@ -65,6 +106,16 @@ $(function () {
                         .slideDown()
                         .removeClass("font-size-0")
                 }
+            },
+
+            _renameGroup: function (oldName, newName) {
+                newName = newName
+                    .replace(/([a-z])([A-Z])/g, '$1-$2')  
+                    .replace(/[\s_]+/g, '-')               
+                    .toLowerCase()                          
+                    //TODO: replace with window.toKebapCase
+                $(`[data-group-name=${oldName}]`).attr("data-group-name", newName);
+                $(`[data-parent-name=${oldName}]`).attr("data-parent-name", newName);
             },
 
             _destroy: function () {

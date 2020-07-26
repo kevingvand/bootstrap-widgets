@@ -1,6 +1,9 @@
 + Define table structure
-# Add dropdown icon to row if collapsible
++ Add dropdown icon to row if collapsible
 + slide up of entire table row group
-# option for collapsible groups
-# option for renaming groups
++ option for collapsible groups
++ option for renaming groups
+# option for only allowing unique names
 # option for reordering rows (drag & drop)
+# option for showing drag handler (add additional column to the front of the table)
+# check why columns are moving on rename
