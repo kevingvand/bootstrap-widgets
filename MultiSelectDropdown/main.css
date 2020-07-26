@@ -88,7 +88,7 @@ textarea:focus, input:focus{
     color: #236350;
 }
 
-.dropdown-icon {
+.multi-combobox-wrapper .dropdown-icon {
     position: absolute;
     right: 10px;
     top: 50%;
