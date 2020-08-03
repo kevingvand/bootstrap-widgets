@@ -16,7 +16,7 @@
 
     <div class="container mt-5">
         <div class="row">
-            <table class="table groupable-table">
+            <!-- <table class="table groupable-table">
                 <thead>
                     <tr>
                         <th>Col 1</th>
@@ -54,6 +54,67 @@
                         <td>3</td>
                     </tr>
                 </tbody>
+            </table> -->
+
+            <table class="table groupable-table">
+                <thead>
+                    <tr>
+                        <th>Col 1</th>
+                        <th>Col 2</th>
+                        <th>Col 3</th>
+                    </tr>
+                </thead>
+                <tr>
+                    <td>A</td>
+                    <td>B</td>
+                    <td>C</td>
+                </tr>
+                <tr>
+                    <td>D</td>
+                    <td>E</td>
+                    <td>F</td>
+                </tr>
+                <tr>
+                    <td>G</td>
+                    <td>H</td>
+                    <td>I</td>
+                </tr>
+                <tr data-group-name="RowGroup1">
+                    <td colspan="2">RowGroup 2</td>
+                </tr>
+                <tr data-parent-name="RowGroup1">
+                    <td>11</td>
+                    <td>1</td>
+                    <td>13</td>
+                </tr>
+                <tr data-parent-name="RowGroup1">
+                    <td>31</td>
+                    <td>22</td>
+                    <td>33</td>
+                </tr>
+                <tr data-parent-name="RowGroup1">
+                    <td>1e</td>
+                    <td>2</td>
+                    <td>fd3</td>
+                </tr>
+                <tr data-group-name="RowGroup2">
+                    <td colspan="2">RowGroup 2</td>
+                </tr>
+                <tr data-parent-name="RowGroup2">
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr data-parent-name="RowGroup2">
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
+                <tr data-parent-name="RowGroup2">
+                    <td>1</td>
+                    <td>2</td>
+                    <td>3</td>
+                </tr>
             </table>
         </div>
     </div>

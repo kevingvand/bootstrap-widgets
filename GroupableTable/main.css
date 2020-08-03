@@ -41,3 +41,16 @@
     -ms-transform: rotate(180deg);
     -webkit-transform: rotate(180deg);
 }
+
+.groupable-table .row-adorner {
+    border: 1px solid #dee2e6;
+    background: #fff;
+}
+
+.groupable-table .row-dragging {
+    background: #dee2e6;
+}
+
+.groupable-table .drop-hover {
+    background: #9bc3b7;
+}

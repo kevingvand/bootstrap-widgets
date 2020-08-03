@@ -12,6 +12,7 @@ $(function () {
                 this.columnCount = this.wrapper.find("thead").first().find("th").length;
 
                 this._build();
+                this._setupGrouping();
             },
 
             _build: function () {
@@ -81,28 +82,108 @@ $(function () {
                 });
             },
 
+            _setupGrouping: function () {
+
+                var self = this;
+
+                this.wrapper.find("tr:not([data-group-name])").draggable({
+                    helper: this._dragHelperRow,
+                    start: this._dragStart,
+                    stop: this._dragStop
+                });
+
+                this.wrapper.find("tbody:not([data-parent-name]) > tr:not([data-group-name])").droppable({
+                    over: this._dropOver,
+                    out: this._dropOut,
+                    drop: function (event, ui) {
+                        $(this).removeClass("drop-hover");
+                        var droppedGroup = ui.draggable.is("[data-group-name]");
+
+                        if (!droppedGroup) {
+
+                            var $groupHeader = $("<tr>")
+                                .attr("data-group-name", "Group")
+                                .append($("<td>")
+                                    .text("Group")
+                                    .attr("colspan", self.columnCount))
+                                .insertAfter($(this))
+                                .after($("<tbody>")
+                                    .attr("data-parent-name", "Group")
+                                    .append($(this))
+                                    .append(ui.draggable));
+
+                            //DRAG = TR & DROP = TR --> Create new group
+                        } else {
+                            // DRAG = TG & DROP = TR --> Create new group and add nested group (if nested is on)
+                        }
+                    }
+                });
+
+                this.wrapper.find("tr[data-group-name]").droppable({
+                    over: this._dropOver,
+                    out: this._dropOut,
+                    drop: function (event, ui) {
+                        $(this).removeClass("drop-hover");
+                        var droppedGroup = ui.draggable.is("[data-group-name]");
+
+                        if (!droppedGroup) {
+                            //DRAG = TR & DROP = TG --> Add row to group
+                        } else {
+                            // DRAG = TG & DROP = TG --> Add (drag) group to (drop) group (if nested is on)
+                        }
+                    }
+                });
+
+            },
+
+            _dragHelperRow: function () {
+                var $helper = $("<div>")
+                    .append($("<table>")
+                        .addClass("table row-adorner")
+                        .width($(this).width())
+                        .append($(this).clone()));
+
+                return $helper;
+            },
+
+            _dragStart: function () {
+                $(this).addClass("row-dragging");
+            },
+
+            _dragStop: function () {
+                $(this).removeClass("row-dragging");
+            },
+
+            _dropOver: function () {
+                $(this).addClass("drop-hover");
+            },
+
+            _dropOut: function () {
+                $(this).removeClass("drop-hover");
+            },
 
             _slideRowGroup: function (name, close) {
+
                 var self = this;
 
                 var $headerRow = this.wrapper.find(`[data-group-name=${name}]`);
-                var $bodyRow = this.wrapper.find(`[data-parent-name=${name}]`);
+                var $bodyRows = this.wrapper.find(`[data-parent-name=${name}]`);
 
                 if (close === undefined)
-                    close = $bodyRow.find("td").is(":visible");
+                    close = $bodyRows.find("td").is(":visible");
 
                 if (close) {
                     $headerRow.find(".dropdown-icon")
                         .removeClass("flip");
 
-                    $bodyRow.find("td")
+                    $bodyRows.find("td")
                         .addClass("font-size-0")
                         .slideUp();
                 } else {
                     $headerRow.find(".dropdown-icon")
                         .addClass("flip");
 
-                    $bodyRow.find("td")
+                    $bodyRows.find("td")
                         .slideDown()
                         .removeClass("font-size-0")
                 }
@@ -110,10 +191,10 @@ $(function () {
 
             _renameGroup: function (oldName, newName) {
                 newName = newName
-                    .replace(/([a-z])([A-Z])/g, '$1-$2')  
-                    .replace(/[\s_]+/g, '-')               
-                    .toLowerCase()                          
-                    //TODO: replace with window.toKebapCase
+                    .replace(/([a-z])([A-Z])/g, '$1-$2')
+                    .replace(/[\s_]+/g, '-')
+                    .toLowerCase()
+                //TODO: replace with window.toKebapCase
                 $(`[data-group-name=${oldName}]`).attr("data-group-name", newName);
                 $(`[data-parent-name=${oldName}]`).attr("data-parent-name", newName);
             },
