@@ -5,6 +5,8 @@ $(function () {
                 collapsibleGroups: true,
                 showDropdownIcon: true,
                 renamableGroups: true,
+                allowGrouping: true,
+                allowNesting: false
             },
 
             _create: function () {
@@ -25,40 +27,49 @@ $(function () {
                     $rowHeaders
                         .addClass("cursor-pointer")
                         .each(function () {
-                            var $nameCell = $(this).find("td").first();
-                            $nameCell.attr("colspan", self.columnCount - (self.options.showDropdownIcon ? 1 : 0));
-
-                            if (self.options.renamableGroups) {
-                                var text = $nameCell.text();
-                                $nameCell.text("");
-
-                                $("<span>")
-                                    .addClass("group-title")
-                                    .text(text)
-                                    .appendTo($nameCell)
-                                    .editableLabel({ enableDoubleClick: false }, {
-                                        "edited": function (_, data) {
-                                            self._renameGroup(data.element.parents("tr").attr("data-group-name"), data.value);
-                                        }
-                                    });
-                            }
-
-                            if (self.options.showDropdownIcon) {
-                                $("<td>")
-                                    .addClass("text-right")
-                                    .append($("<i>")
-                                        .addClass("fas fa-caret-down dropdown-icon flip"))
-                                    .appendTo($(this));
-                            }
-                        })
+                            self._setupRowGroup($(this));
+                        });
                 }
 
-                $rowHeaders.click(function () {
+
+            },
+
+            _setupRowGroup: function ($row) {
+                var self = this;
+
+                var $nameCell = $row.find("td").first();
+                $nameCell.attr("colspan", self.columnCount - (self.options.showDropdownIcon ? 1 : 0));
+
+                if (self.options.renamableGroups) {
+                    var text = $nameCell.text();
+                    $nameCell.text("");
+
+                    $("<span>")
+                        .addClass("group-title")
+                        .text(text)
+                        .appendTo($nameCell)
+                        .editableLabel({ enableDoubleClick: false }, {
+                            "edited": function (_, data) {
+                                if ($(`[data-parent-name=${self._getValidGroupName(data.value)}]`).length)
+                                    return false;
+
+                                self._renameGroup(data.element.parents("tr").attr("data-group-name"), data.value);
+                            }
+                        });
+                }
+
+                if (self.options.showDropdownIcon) {
+                    $("<td>")
+                        .addClass("text-right")
+                        .append($("<i>")
+                            .addClass("fas fa-caret-down dropdown-icon flip"))
+                        .appendTo($row);
+                }
+
+                $row.click(function () {
                     var $this = $(this);
                     if ($this.hasClass('clicked')) {
                         $this.removeClass('clicked');
-
-                        // DOUBLE CLICK
 
                         if (self.options.renamableGroups) {
                             $this.find("span.group-title").editableLabel("toggle");
@@ -69,8 +80,6 @@ $(function () {
                         setTimeout(function () {
                             if ($this.hasClass('clicked')) {
                                 $this.removeClass('clicked');
-
-                                // SINGLE CLICK
 
                                 if (self.options.collapsibleGroups) {
                                     var name = $this.attr("data-group-name");
@@ -101,16 +110,20 @@ $(function () {
 
                         if (!droppedGroup) {
 
+                            //TODO: if target is in group, dropping is only possible if nesting is on
+                            //TODO: if source is last element in a group, leaving the group empty, remove the group
+
+                            var groupName = self._getUniqueGroupName();
                             var $groupHeader = $("<tr>")
-                                .attr("data-group-name", "Group")
+                                .attr("data-group-name", groupName)
                                 .append($("<td>")
-                                    .text("Group")
+                                    .text(groupName)
                                     .attr("colspan", self.columnCount))
                                 .insertAfter($(this))
-                                .after($("<tbody>")
-                                    .attr("data-parent-name", "Group")
-                                    .append($(this))
-                                    .append(ui.draggable));
+                                .after($(this).attr("data-parent-name", groupName))
+                                .after(ui.draggable.attr("data-parent-name", groupName));
+
+                            self._setupRowGroup($groupHeader);
 
                             //DRAG = TR & DROP = TR --> Create new group
                         } else {
@@ -134,6 +147,18 @@ $(function () {
                     }
                 });
 
+            },
+
+            _getUniqueGroupName: function () {
+                var index = 1;
+                var $group, groupName;
+
+                do {
+                    groupName = `group-${index++}`;
+                    $group = this.wrapper.find(`[data-group-name=${groupName}]`);
+                } while ($group.length)
+
+                return groupName;
             },
 
             _dragHelperRow: function () {
@@ -189,14 +214,42 @@ $(function () {
                 }
             },
 
-            _renameGroup: function (oldName, newName) {
-                newName = newName
+            _getValidGroupName: function (name) {
+                //TODO: replace with window.toKebapCase
+
+                return name
                     .replace(/([a-z])([A-Z])/g, '$1-$2')
                     .replace(/[\s_]+/g, '-')
-                    .toLowerCase()
-                //TODO: replace with window.toKebapCase
+                    .toLowerCase();
+            },
+
+            _renameGroup: function (oldName, newName) {
+                newName = this._getValidGroupName(newName);
                 $(`[data-group-name=${oldName}]`).attr("data-group-name", newName);
                 $(`[data-parent-name=${oldName}]`).attr("data-parent-name", newName);
+            },
+
+            appendGroup: function (groupName) {
+
+            },
+
+            appendRow: function (groupName, $row) {
+
+                if (!$row) {
+                    this.wrapper.find("tr").last().after(groupName);
+                    return;
+                }
+
+                var $predecessor = $(`[data-parent-name=${groupName}]`).last();
+
+                if (!$predecessor.length)
+                    $predecessor = $(`[data-group-name=${groupName}]`);
+
+                if (!$predecessor.length)
+                    $predecessor = this.wrapper.find("tr").last();
+
+                $row.attr("data-parent-name", groupName);
+                $predecessor.after($row);
             },
 
             _destroy: function () {
