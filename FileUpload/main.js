@@ -68,15 +68,21 @@ $(function () {
 
                 this._setAccept();
 
+                if (this.options.showPreview) {
+                    this.previewWrapper = $("<div>")
+                        .addClass("file-input-preview")
+                        .appendTo(this.wrapper);
+                }
+
                 this.fileInput
                     .appendTo(this.wrapper)
                     .on("change", () => self._fileSelected())
                     .hide();
 
-
                 this.fileNameInput = $("<input>")
                     .attr("type", "text")
                     .addClass("form-control")
+                    .attr("readonly", "")
                     .dblclick(() => {
                         self.fileInput.click();
                     });
@@ -123,11 +129,77 @@ $(function () {
 
                         if (!this.allowDrop) return false;
 
+                        console.log(event.originalEvent.dataTransfer.files);
                         //TODO: allow for multi select
                         this.fileInput.prop("files", event.originalEvent.dataTransfer.files);
                         this.fileInput.trigger("change");
                     })
                     .hide();
+            },
+
+            _buildPreviewItem: function (file) {
+
+                var self = this;
+
+                var item = $("<div>")
+                    .addClass("file-input-preview-item d-flex flex-column justify-content-between align-items-center")
+                    .attr("data-name", file.name);
+
+                var buttonWrapper = $("<div>")
+                    .addClass("file-input-preview-item-close")
+                    .appendTo(item);
+
+                var closeButton = $("<button>")
+                    .addClass("btn btn-primary badge")
+                    .append($("<i>")
+                        .addClass("fas fa-times"))
+                    .click(() => {
+                        closeButton.parents(".file-input-preview-item").remove();
+                        self._removeFile(file);
+                    })
+                    .appendTo(buttonWrapper);
+
+
+                var iconWrapper = $("<div>")
+                    .addClass("file-input-preview-item-icon d-flex")
+                    .appendTo(item);
+
+                if (file.type.startsWith("image/")) {
+                    this._getBase64(file, (src) => {
+                        $("<img>")
+                            .attr("src", src)
+                            .appendTo(iconWrapper);
+                    })
+                }
+
+                if (file.type.startsWith("application/pdf")) {
+                    $("<span>")
+                        .append($("<i>")
+                            .addClass("fas fa-4x fa-file-pdf"))
+                        .appendTo(iconWrapper);
+                }
+
+                $("<span>")
+                    .addClass("file-input-preview-item-name")
+                    .text(file.name)
+                    .appendTo(item);
+
+                return item;
+            },
+
+            _removeFile: function (file) {
+
+            },
+
+            _getBase64: function (file, callback) {
+                var reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function () {
+                    callback(reader.result);
+                };
+                reader.onerror = function (error) {
+                    console.log('Error: ', error);
+                };
             },
 
             _setAccept: function () {
@@ -162,10 +234,17 @@ $(function () {
             },
 
             _fileSelected: function () {
-
                 var files = this.fileInput[0].files;
                 if (!files || !files.length) return;
-                this.fileNameInput.val(files[0].name); // Allow for multiple
+
+                var file = files[0]; // Allow for multiple
+
+                this.fileNameInput.val(file.name); // Allow for multiple
+
+                if (this.options.showPreview) {
+                    var previewItem = this._buildPreviewItem(file);
+                    previewItem.appendTo(this.previewWrapper);
+                }
             },
 
             _destroy: function () {
