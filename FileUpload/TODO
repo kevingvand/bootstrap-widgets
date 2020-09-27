@@ -1,0 +1,6 @@
++ Basic structure (one file)
+- extension to allow multiple files
+- preview for multiple files
++ drop to upload
+- function for getting file preview (pass index on multiple files)
+- function for getting

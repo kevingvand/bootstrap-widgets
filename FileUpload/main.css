@@ -1,0 +1,21 @@
+.btn {
+    cursor: pointer;
+}
+
+.file-input-drop {
+    border: 2px dashed #ced4da;
+    width: 100%;
+    color: #495057;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+}
+
+.file-input-drop p {
+    margin: 10px;
+}
+
+.file-input-drop-over {
+    color: white;
+    background: #495057;
+}
