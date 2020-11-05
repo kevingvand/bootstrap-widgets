@@ -1,0 +1,14 @@
+- Check for existing table data
+- Possibility to specify width of a column
+- Filter column
+    - search
+    - filter values
+- Sort asc/desc
+- reorder columns
+- specify table source
+    - use a mapper to map any api to a table format
+- show/hide columns
+- pagination
+- row click function
+- row right click context menu
+- action icons (at end of table)
