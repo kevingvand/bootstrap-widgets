@@ -35,9 +35,9 @@
         $(function () {
             $(".table").datagrid({
                 columns: [
-                    { header: "Id", width: "5%" },
-                    { header: "Name" },
-                    { header: "Description" }
+                    { header: "Id", width: "5%", resizable: false  },
+                    { header: "Name"},
+                    { header: "Description" },
                 ],
                 rows: [
                     { cells: [{ text: "1" }, { text: "TestA" }, { text: "HelloD" }] },

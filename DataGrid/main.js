@@ -45,7 +45,7 @@ $(function () {
 
                     column.calculated = {};
 
-                    if (self.options.resizable) {
+                    if (self.options.resizable && column.resizable !== false) {
                         if (columns.length - 1 != index) {
                             $th.resizable({
                                 handles: "e",
