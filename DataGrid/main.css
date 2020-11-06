@@ -1,3 +1,16 @@
 th {
     border: 1px solid gray;
 }
+
+th.sortable:hover {
+    cursor: pointer;
+    user-select: none;
+}
+
+th.sortable:hover .datagrid-header-icon {
+    color: #5EA290;
+}
+
+.datagrid-header-icon:hover {
+    cursor: pointer;
+}

@@ -35,12 +35,12 @@
         $(function () {
             $(".table").datagrid({
                 columns: [
-                    { header: "Id", width: "5%", resizable: false  },
-                    { header: "Name"},
+                    { header: "Id", width: "5%", allowFilter: true, allowSort: true  },
+                    { header: "Name", allowSort: true},
                     { header: "Description" },
                 ],
                 rows: [
-                    { cells: [{ text: "1" }, { text: "TestA" }, { text: "HelloD" }] },
+                    { cells: [{ text: "1" }, { text: "TestZ" }, { text: "HelloD" }] },
                     { cells: [{ text: "2" }, { text: "TestB" }, { text: "HelloC" }] },
                     { cells: [{ text: "3" }, { text: "TestC" }, { text: "HelloB" }] },
                     { cells: [{ text: "4" }, { text: "TestD" }, { text: "HelloA" }] }

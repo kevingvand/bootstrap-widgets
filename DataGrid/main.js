@@ -33,15 +33,55 @@ $(function () {
                     .appendTo(this.tableHead);
 
                 this.options.columns.forEach((column, index, columns) => {
+
                     var $th = $("<th>")
-                        .text(column.header)
                         .appendTo(self.tableHeadRow);
 
-                    if (column.width)
+                    var $thWrapper = $("<div>")
+                        .addClass("w-100 m-0 p-0 d-flex justify-content-between")
+                        .append($("<span>")
+                            .text(column.header))
+                        .appendTo($th);
+
+                    var $thActions = $("<div>")
+                        .appendTo($thWrapper);
+
+                    if (column.width) {
                         $th.css("width", column.width);
+                        column.minWidth = column.width;
+                    }
 
                     if (!column.minWidth)
-                        column.minWidth = 10;
+                        column.minWidth = 80;
+
+                    // //TODO: split into search, filter and more?
+                    // if(column.allowFilter) {
+                    //     var sortButton = $("<i>")
+                    //         .addClass("fas fa-filter datagrid-header-icon")
+                    //         .appendTo($thActions);
+                    // }
+
+                    if (column.allowSort) {
+                        $("<i>")
+                            .addClass("fas fa-sort datagrid-sort datagrid-header-icon ml-1")
+                            .appendTo($thActions);
+
+                        $th
+                            .addClass("sortable")
+                            .click(function () {
+                                var $sortIcon = $(this).find(".datagrid-sort");
+                                var currentSortDirection = $(this).data("sortDirection");
+
+                                $("th.sortable").data("sortDirection", "");
+                                self._setSortIcon($(".datagrid-sort"));
+
+                                var newSortDirection = (!currentSortDirection || currentSortDirection === "DESC") ? "ASC" : "DESC";
+
+                                $(this).data("sortDirection", newSortDirection);
+                                self._setSortIcon($sortIcon, newSortDirection);
+                                self._sortColumn(column.header, newSortDirection);
+                            });
+                    }
 
                     column.calculated = {};
 
@@ -82,15 +122,48 @@ $(function () {
 
                 this.options.rows.forEach((row) => {
 
-                    var $row = $("<tr>")
+                    row.element = $("<tr>")
                         .appendTo(self.tableBody);
 
                     row.cells.forEach((cell) => {
-                        $("<td>")
+                        cell.element = $("<td>")
                             .text(cell.text)
-                            .appendTo($row);
+                            .appendTo(row.element);
                     });
                 });
+            },
+
+            _setSortIcon($selector, direction) {
+                $selector
+                    .removeClass("fa-sort")
+                    .removeClass("fa-sort-up")
+                    .removeClass("fa-sort-down");
+
+                if (direction === "ASC")
+                    $selector.addClass("fa-sort-up");
+                else if (direction === "DESC")
+                    $selector.addClass("fa-sort-down");
+                else $selector.addClass("fa-sort");
+            },
+
+            _sortColumn(columnHeader, direction) {
+                var columnIndex = this.options.columns.findIndex(col => col.header === columnHeader);
+                var column = this.options.columns[columnIndex];
+                if (!column || !column.allowSort) return;
+
+                var sortDesc = direction === "DESC";
+
+                this.options.rows.sort((a, b) => {
+                    var aText = a.cells[columnIndex].text.toLowerCase();
+                    var bText = b.cells[columnIndex].text.toLowerCase();
+
+                    if (aText < bText) return sortDesc ? 1 : -1;
+                    if (aText > bText) return sortDesc ? -1 : 1;
+                    return 0;
+                });
+
+                this.tableBody.remove();
+                this._buildTableBody();
             },
 
             _destroy: function () {
