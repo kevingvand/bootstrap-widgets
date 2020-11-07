@@ -155,8 +155,7 @@ $(function () {
 
                 this.options.rows.forEach((row) => {
 
-                    console.log(row.cells);
-                    if(row.cells.some(cell => {return cell.hidden})) return;
+                    if (row.cells.some(cell => { return cell.hidden })) return;
 
                     row.element = $("<tr>")
                         .appendTo(self.tableBody);
@@ -167,6 +166,17 @@ $(function () {
                             .appendTo(row.element);
                     });
                 });
+
+                if (!this.tableBody.find("tr").length) {
+                    $("<tr>")
+                        .append($("<td>")
+                            .append($("<div>")
+                                .addClass("d-flex justify-content-center align-items-center")
+                                .append($("<i>").addClass("fas fa-info-circle mr-2"))
+                                .append($("<span>").text("No rows found to display")))
+                            .attr("colspan", this.options.columns.length))
+                        .appendTo(this.tableBody);
+                }
             },
 
             _rebuildTableBody: function () {
@@ -210,7 +220,7 @@ $(function () {
                 var searchTerm = searchTerm.toLowerCase();
                 var columnIndex = this.options.columns.findIndex(col => col.header === columnHeader);
                 var column = this.options.columns[columnIndex];
-                if (!column || !column.allowSearch) return; 
+                if (!column || !column.allowSearch) return;
 
                 this.options.rows.forEach(row => {
                     var cell = row.cells[columnIndex];
