@@ -61,6 +61,39 @@ $(function () {
                     //         .appendTo($thActions);
                     // }
 
+                    if (column.allowSearch || column.allowFilter) {
+                        if (!self.filterRow) {
+                            self.filterRow = $("<tr>")
+                                .addClass("filter-row")
+                                .insertAfter(self.tableHeadRow);
+
+                            self.options.columns.forEach(column => {
+                                $("<td>")
+                                    .append($("<div>").addClass("h-100 d-flex justify-content-between align-items-center filter-cell"))
+                                    .appendTo(self.filterRow);
+                            });
+                        }
+                    }
+
+                    if (column.allowSearch) {
+                        var $filterCell = self.filterRow.find("td div.filter-cell").get(index);
+                        $("<input>")
+                            .addClass("form-control")
+                            .attr("type", "search")
+                            .attr("placeholder", "Search...")
+                            .appendTo($filterCell)
+                            .on("input", function () {
+                                self._searchColumn(column.header, $(this).val());
+                            });
+                    }
+
+                    if (column.allowFilter) {
+                        var $filterCell = self.filterRow.find("td div.filter-cell").get(index);
+                        $("<i>")
+                            .addClass("fas fa-filter ml-2")
+                            .appendTo($filterCell);
+                    }
+
                     if (column.allowSort) {
                         $("<i>")
                             .addClass("fas fa-sort datagrid-sort datagrid-header-icon ml-1")
@@ -122,6 +155,9 @@ $(function () {
 
                 this.options.rows.forEach((row) => {
 
+                    console.log(row.cells);
+                    if(row.cells.some(cell => {return cell.hidden})) return;
+
                     row.element = $("<tr>")
                         .appendTo(self.tableBody);
 
@@ -131,6 +167,11 @@ $(function () {
                             .appendTo(row.element);
                     });
                 });
+            },
+
+            _rebuildTableBody: function () {
+                this.tableBody.remove();
+                this._buildTableBody();
             },
 
             _setSortIcon($selector, direction) {
@@ -162,8 +203,23 @@ $(function () {
                     return 0;
                 });
 
-                this.tableBody.remove();
-                this._buildTableBody();
+                this._rebuildTableBody();
+            },
+
+            _searchColumn(columnHeader, searchTerm) {
+                var searchTerm = searchTerm.toLowerCase();
+                var columnIndex = this.options.columns.findIndex(col => col.header === columnHeader);
+                var column = this.options.columns[columnIndex];
+                if (!column || !column.allowSearch) return; 
+
+                this.options.rows.forEach(row => {
+                    var cell = row.cells[columnIndex];
+                    var text = cell.text.toLowerCase();
+
+                    cell.hidden = (text && !text.includes(searchTerm));
+                });
+
+                this._rebuildTableBody();
             },
 
             _destroy: function () {

@@ -35,15 +35,15 @@
         $(function () {
             $(".table").datagrid({
                 columns: [
-                    { header: "Id", width: "5%", allowFilter: true, allowSort: true  },
-                    { header: "Name", allowSort: true},
-                    { header: "Description" },
+                    { header: "Id", width: "5%", allowSort: true, allowFilter: true  },
+                    { header: "Name", allowSearch: true, allowSort: true, allowFilter: true},
+                    { header: "Description", allowSearch: true },
                 ],
                 rows: [
-                    { cells: [{ text: "1" }, { text: "TestZ" }, { text: "HelloD" }] },
-                    { cells: [{ text: "2" }, { text: "TestB" }, { text: "HelloC" }] },
-                    { cells: [{ text: "3" }, { text: "TestC" }, { text: "HelloB" }] },
-                    { cells: [{ text: "4" }, { text: "TestD" }, { text: "HelloA" }] }
+                    { cells: [{ text: "1" }, { text: "abc" }, { text: "A" }] },
+                    { cells: [{ text: "2" }, { text: "def" }, { text: "A" }] },
+                    { cells: [{ text: "3" }, { text: "TestC" }, { text: "B" }] },
+                    { cells: [{ text: "4" }, { text: "TestD" }, { text: "B" }] }
                 ]
             });
         });
