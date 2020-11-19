@@ -118,9 +118,30 @@ $(function () {
                             .appendTo($filterDropdown);
 
                         this.columnFilters[column.header].forEach(filter => {
-                            self._buildFilterSwitch(filter)
+                            filter.switch = self._buildFilterSwitch(filter)
                                 .appendTo($filterItems);
                         });
+
+                        $("<div>")
+                            .addClass("dropdown-divider")
+                            .appendTo($filterItems);
+
+                        var $resetButton = $("<button>")
+                            .addClass("dropdown-item d-flex justify-content-between align-items-center")
+                            .text("Reset filters")
+                            .prepend($("<i>").addClass("fas fa-times"))
+                            .click(function (e) {
+                                e.stopPropagation();
+                                e.preventDefault();
+
+                                self.columnFilters[column.header].forEach(filter => {
+                                    filter.isActive = false;
+                                    filter.switch.find(".custom-control-input").prop("checked", false);
+                                    self._filterColumn(column.header);
+                                    $filterButton.removeClass("action-icon-active");
+                                });
+                            })
+                            .appendTo($filterItems);
                     }
 
                     if (column.allowSort) {
@@ -228,6 +249,11 @@ $(function () {
                     .change(function () {
                         filter.isActive = $(this).prop("checked");
                         self._filterColumn(filter.column);
+
+                        var $filterButton = filter.switch.parents(".dropdown").find(".action-icon");
+                        if(self.columnFilters[filter.column].some(columnFilter => columnFilter.isActive))
+                            $filterButton.addClass("action-icon-active");
+                        else $filterButton.removeClass("action-icon-active");
                     })
                     .appendTo(switchWrapper);
 
@@ -248,7 +274,7 @@ $(function () {
                 this.columnFilters = {};
                 $.each(self.options.columns, function (index, col) {
                     var values = [...new Set(self.options.rows.map(row => row.cells[index].text))];
-                    self.columnFilters[col.header] =  values.map(value => {
+                    self.columnFilters[col.header] = values.map(value => {
                         return {
                             value: value,
                             isActive: false,
@@ -316,7 +342,7 @@ $(function () {
 
             _filterColumn(columnHeader) {
                 var column = this._getColumnByHeader(columnHeader);
-                if(!column) return;
+                if (!column) return;
 
                 var filters = this.columnFilters[columnHeader].filter(filter => filter.isActive).map(filter => filter.value);
 

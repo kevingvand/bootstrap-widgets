@@ -1,3 +1,7 @@
+﻿textarea:focus, input:focus, button:focus {
+    outline: none;
+}
+
 th {
     border: 1px solid gray;
 }
@@ -22,6 +26,10 @@ th.sortable:hover .datagrid-header-icon {
 .action-icon:hover {
     cursor: pointer;
     color: gray;
+}
+
+.action-icon-active {
+    color: #5EA290;
 }
 
 .dropdown-item-switch {

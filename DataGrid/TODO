@@ -4,8 +4,9 @@
 + Possibility to specify width of a column
 - Filter column
     + search
-    - filter values
-        - reset all filters (disable all button)
+        - & and | in search and brackets ()
+    + filter values
+        + reset all filters (disable all button)
         - search in filters
 + Sort asc/desc
 - reorder columns
