@@ -14,3 +14,17 @@ th.sortable:hover .datagrid-header-icon {
 .datagrid-header-icon:hover {
     cursor: pointer;
 }
+
+.filter-row td {
+    vertical-align: middle;
+}
+
+.action-icon:hover {
+    cursor: pointer;
+    color: gray;
+}
+
+.dropdown-item-switch {
+    display: flex;
+    justify-content: space-between;
+}

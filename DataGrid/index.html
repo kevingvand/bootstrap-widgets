@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css"/>
+    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
     <link rel="stylesheet" href="main.css">
     <script src="https://kit.fontawesome.com/bc51ad2e1e.js" crossorigin="anonymous"></script>
 </head>
@@ -35,9 +35,9 @@
         $(function () {
             $(".table").datagrid({
                 columns: [
-                    { header: "Id", width: "5%", allowSort: true, allowFilter: true  },
-                    { header: "Name", allowSearch: true, allowSort: true, allowFilter: true},
-                    { header: "Description", allowSearch: true },
+                    { header: "Id", width: "5%", allowSort: true, allowFilter: true },
+                    { header: "Name", allowSearch: true, allowSort: true, allowFilter: true },
+                    { header: "Description", allowSearch: true, allowFilter: true },
                 ],
                 rows: [
                     { cells: [{ text: "1" }, { text: "abc" }, { text: "A" }] },
@@ -46,6 +46,39 @@
                     { cells: [{ text: "4" }, { text: "TestD" }, { text: "B" }] }
                 ]
             });
+
+            // Handle nested dropdown
+            $(".dropdown-item").click(function (e) {
+
+                var $anchor = $(this).children("a");
+                var $parent = $(this).offsetParent(".dropdown-menu");
+                var $menu = $anchor.next();
+
+                if ($(this).hasClass("dropdown-item-switch")) {
+                    var $input = $(this).find(".custom-control-input");
+                    $input
+                        .prop("checked", !$input.prop("checked"))
+                        .change();
+                    e.stopPropagation();
+                    e.preventDefault();
+                    return;
+                } else if ($menu.hasClass("show")) {
+                    $menu.removeClass("show");
+                    e.stopPropagation();
+                    e.preventDefault();
+                    return;
+                } else {
+                    $parent.find(".dropdown-menu").removeClass("show");
+                }
+
+                if ($anchor.hasClass("dropdown-toggle")) {
+
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $anchor.next().toggleClass("show");
+                }
+            });
+
         });
     </script>
 </body>

@@ -20,6 +20,11 @@ $(function () {
 
                 this._buildTableHead();
                 this._buildTableBody();
+
+                //TODO: remove
+                window.cols = this.options.columns;
+                window.rows = this.options.rows;
+                window.columnFilters = this.columnFilters;
             },
 
             _buildTableHead: function () {
@@ -31,6 +36,9 @@ $(function () {
 
                 this.tableHeadRow = $("<tr>")
                     .appendTo(this.tableHead);
+
+                if (this.options.columns.some(col => col.allowFilter))
+                    this._getColumnFilters();
 
                 this.options.columns.forEach((column, index, columns) => {
 
@@ -89,9 +97,30 @@ $(function () {
 
                     if (column.allowFilter) {
                         var $filterCell = self.filterRow.find("td div.filter-cell").get(index);
-                        $("<i>")
-                            .addClass("fas fa-filter ml-2")
+
+                        var filterIconClasses = "fas fa-filter";
+                        if (column.allowSearch)
+                            filterIconClasses += " ml-2";
+
+                        var $filterDropdown = $("<div>")
+                            .addClass("dropdown")
                             .appendTo($filterCell);
+
+                        var $filterButton = $("<span>")
+                            .addClass("action-icon m-auto")
+                            .attr("data-toggle", "dropdown")
+                            .append($("<i>")
+                                .addClass(filterIconClasses))
+                            .appendTo($filterDropdown);
+
+                        var $filterItems = $("<div>")
+                            .addClass("dropdown-menu dropdown-menu-right")
+                            .appendTo($filterDropdown);
+
+                        this.columnFilters[column.header].forEach(filter => {
+                            self._buildFilterSwitch(filter)
+                                .appendTo($filterItems);
+                        });
                     }
 
                     if (column.allowSort) {
@@ -179,9 +208,56 @@ $(function () {
                 }
             },
 
+            _buildFilterSwitch: function (filter) {
+                var self = this;
+
+                var itemWrapper = $("<li>")
+                    .addClass("dropdown-item dropdown-item-switch");
+
+                $("<span>")
+                    .text(filter.value)
+                    .appendTo(itemWrapper);
+
+                var switchWrapper = $("<div>")
+                    .addClass("custom-control custom-switch custom-switch-no-label")
+                    .appendTo(itemWrapper);
+
+                var switchInput = $("<input>")
+                    .addClass("custom-control-input")
+                    .attr("type", "checkbox")
+                    .change(function () {
+                        filter.isActive = $(this).prop("checked");
+                        self._filterColumn(filter.column);
+                    })
+                    .appendTo(switchWrapper);
+
+                var switchLabel = $("<label>")
+                    .addClass("custom-control-label")
+                    .appendTo(switchWrapper);
+
+                return itemWrapper;
+            },
+
             _rebuildTableBody: function () {
                 this.tableBody.remove();
                 this._buildTableBody();
+            },
+
+            _getColumnFilters() {
+                var self = this;
+                this.columnFilters = {};
+                $.each(self.options.columns, function (index, col) {
+                    var values = [...new Set(self.options.rows.map(row => row.cells[index].text))];
+                    self.columnFilters[col.header] =  values.map(value => {
+                        return {
+                            value: value,
+                            isActive: false,
+                            column: col.header
+                        };
+                    });
+                });
+
+                return this.columnFilters;
             },
 
             _setSortIcon($selector, direction) {
@@ -197,16 +273,23 @@ $(function () {
                 else $selector.addClass("fa-sort");
             },
 
-            _sortColumn(columnHeader, direction) {
+            _getColumnByHeader(columnHeader) {
                 var columnIndex = this.options.columns.findIndex(col => col.header === columnHeader);
                 var column = this.options.columns[columnIndex];
+
+                column.index = columnIndex;
+                return column;
+            },
+
+            _sortColumn(columnHeader, direction) {
+                var column = this._getColumnByHeader(columnHeader);
                 if (!column || !column.allowSort) return;
 
                 var sortDesc = direction === "DESC";
 
                 this.options.rows.sort((a, b) => {
-                    var aText = a.cells[columnIndex].text.toLowerCase();
-                    var bText = b.cells[columnIndex].text.toLowerCase();
+                    var aText = a.cells[column.index].text.toLowerCase();
+                    var bText = b.cells[column.index].text.toLowerCase();
 
                     if (aText < bText) return sortDesc ? 1 : -1;
                     if (aText > bText) return sortDesc ? -1 : 1;
@@ -218,15 +301,28 @@ $(function () {
 
             _searchColumn(columnHeader, searchTerm) {
                 var searchTerm = searchTerm.toLowerCase();
-                var columnIndex = this.options.columns.findIndex(col => col.header === columnHeader);
-                var column = this.options.columns[columnIndex];
+                var column = this._getColumnByHeader(columnHeader);
                 if (!column || !column.allowSearch) return;
 
                 this.options.rows.forEach(row => {
-                    var cell = row.cells[columnIndex];
+                    var cell = row.cells[column.index];
                     var text = cell.text.toLowerCase();
 
                     cell.hidden = (text && !text.includes(searchTerm));
+                });
+
+                this._rebuildTableBody();
+            },
+
+            _filterColumn(columnHeader) {
+                var column = this._getColumnByHeader(columnHeader);
+                if(!column) return;
+
+                var filters = this.columnFilters[columnHeader].filter(filter => filter.isActive).map(filter => filter.value);
+
+                this.options.rows.forEach(row => {
+                    var cell = row.cells[column.index];
+                    cell.hidden = filters.length && !filters.includes(cell.text);
                 });
 
                 this._rebuildTableBody();
