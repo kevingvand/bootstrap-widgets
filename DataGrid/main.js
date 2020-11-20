@@ -4,7 +4,8 @@ $(function () {
             options: {
                 columns: [],
                 rows: [],
-                resizable: true,
+                allowResize: true,
+                allowColumnReorder: true,
             },
 
             _create: function () {
@@ -45,11 +46,21 @@ $(function () {
                     var $th = $("<th>")
                         .appendTo(self.tableHeadRow);
 
+                    column.th = $th;
+
                     var $thWrapper = $("<div>")
                         .addClass("w-100 m-0 p-0 d-flex justify-content-between")
                         .append($("<span>")
                             .text(column.header))
                         .appendTo($th);
+
+                    if (self.options.allowColumnReorder) {
+                        $("<span>")
+                            .addClass("grip-icons mr-3")
+                            .append($("<i>")
+                                .addClass("fas fa-grip-vertical"))
+                            .prependTo($thWrapper);
+                    }
 
                     var $thActions = $("<div>")
                         .appendTo($thWrapper);
@@ -61,13 +72,6 @@ $(function () {
 
                     if (!column.minWidth)
                         column.minWidth = 80;
-
-                    // //TODO: split into search, filter and more?
-                    // if(column.allowFilter) {
-                    //     var sortButton = $("<i>")
-                    //         .addClass("fas fa-filter datagrid-header-icon")
-                    //         .appendTo($thActions);
-                    // }
 
                     if (column.allowSearch || column.allowFilter) {
                         if (!self.filterRow) {
@@ -168,7 +172,16 @@ $(function () {
 
                     column.calculated = {};
 
-                    if (self.options.resizable && column.resizable !== false) {
+                    if (this.options.allowColumnReorder) {
+                        this.table.sorttable({
+                            placeholder: 'placeholder',
+                            helperCells: null,
+                            tolerance: "pointer",
+                            axis: "x"
+                        }).disableSelection();
+                    }
+
+                    if (self.options.allowResize && column.allowResize !== false) {
                         if (columns.length - 1 != index) {
                             $th.resizable({
                                 handles: "e",
@@ -210,11 +223,14 @@ $(function () {
                     row.element = $("<tr>")
                         .appendTo(self.tableBody);
 
-                    row.cells.forEach((cell) => {
+                    var cellOrder = self.options.columns.map(col => col.th.index());
+
+                    for (var cellIndex = 0; cellIndex < cellOrder.length; cellIndex++) {
+                        var cell = row.cells[cellOrder.indexOf(cellIndex)];
                         cell.element = $("<td>")
                             .text(cell.text)
                             .appendTo(row.element);
-                    });
+                    }
                 });
 
                 if (!this.tableBody.find("tr").length) {
@@ -251,7 +267,7 @@ $(function () {
                         self._filterColumn(filter.column);
 
                         var $filterButton = filter.switch.parents(".dropdown").find(".action-icon");
-                        if(self.columnFilters[filter.column].some(columnFilter => columnFilter.isActive))
+                        if (self.columnFilters[filter.column].some(columnFilter => columnFilter.isActive))
                             $filterButton.addClass("action-icon-active");
                         else $filterButton.removeClass("action-icon-active");
                     })

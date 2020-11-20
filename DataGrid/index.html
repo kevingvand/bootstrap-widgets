@@ -30,10 +30,13 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 
+    <script src="jquery.sorttable.js"></script>
     <script src="main.js"></script>
     <script>
         $(function () {
             $(".table").datagrid({
+                allowResize: true,
+                allowColumnReorder: true,
                 columns: [
                     { header: "Id", width: "5%", allowSort: true, allowFilter: true },
                     { header: "Name", allowSearch: true, allowSort: true, allowFilter: true },

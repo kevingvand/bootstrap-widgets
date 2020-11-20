@@ -36,3 +36,21 @@ th.sortable:hover .datagrid-header-icon {
     display: flex;
     justify-content: space-between;
 }
+
+.table-drag-helper {
+    background: white;
+    opacity: .8;
+}
+
+th.placeholder, td.placeholder {
+    background: lightgray !important;
+    border: none !important;
+}
+
+.grip-icons {
+    color: #495057;
+}
+
+.grip-icons:hover {
+    cursor: grab;
+}

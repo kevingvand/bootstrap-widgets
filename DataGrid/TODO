@@ -9,7 +9,7 @@
         + reset all filters (disable all button)
         - search in filters
 + Sort asc/desc
-- reorder columns
++ reorder columns
 - row right click context menu
 - show/hide columns
 - pagination
@@ -17,3 +17,4 @@
 - action icons (at end of table)
 - style search "x" for clearing input
 - hide function for filter row
+- full screen mode (somehow?)
