@@ -31,9 +31,64 @@
         crossorigin="anonymous"></script>
 
     <script src="jquery.sorttable.js"></script>
+    <script src="contextMenu.js"></script>
     <script src="main.js"></script>
     <script>
         $(function () {
+
+            $(".table").contextMenu({
+                actions: [
+                    {
+                        text: "First",
+                        action: function () {
+                            console.log("first action");
+                        }
+                    },
+                    {
+                        isDivider: true,
+                    },
+                    {
+                        text: "Second",
+                        actions: [
+                            {
+                                text: "Sub 1",
+                                action: function () { console.log("sub 1") }
+                            },
+                            {
+                                text: "Sub 2",
+                                actions: [
+                                    {
+                                        text: "Subsub 1",
+                                        keepOpen: true,
+                                        action: function () { console.log("sub sub 1") }
+                                    },
+                                    {
+                                        text: "Sub sub 2",
+                                        keepParentsOpen: true,
+                                        action: function () { console.log("sub sub 2") }
+                                    }
+                                ]
+                            },
+                            {
+                                text: "Sub 3",
+                                actions: [
+                                    {
+                                        text: "Subsub 4",
+                                        keepOpen: true,
+                                        action: function () { console.log("sub sub 4") }
+                                    },
+                                    {
+                                        text: "Sub sub 3",
+                                        keepParentsOpen: true,
+                                        action: function () { console.log("sub sub 3") }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                ]
+            });
+
             $(".table").datagrid({
                 allowResize: true,
                 allowColumnReorder: true,

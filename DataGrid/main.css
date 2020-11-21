@@ -54,3 +54,8 @@ th.placeholder, td.placeholder {
 .grip-icons:hover {
     cursor: grab;
 }
+
+/* CONTEXT MENU */
+.context-menu {
+    position: absolute;
+}
