@@ -59,3 +59,7 @@ th.placeholder, td.placeholder {
 .context-menu {
     position: absolute;
 }
+
+.context-menu-item-active {
+    background: #f8f9fa;
+}

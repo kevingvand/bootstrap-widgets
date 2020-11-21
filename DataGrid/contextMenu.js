@@ -24,8 +24,8 @@ $(function () {
                     return false;
                 });
 
-                $("body").click(function(event) {
-                    if($(event.target).parents(".context-menu").length) return;
+                $("body").click(function (event) {
+                    if ($(event.target).parents(".context-menu").length) return;
 
                     $(".context-menu").remove();
                 });
@@ -91,7 +91,14 @@ $(function () {
                             .append($("<i>").addClass("fas fa-angle-right"))
                             .attr("data-toggle", "dropdown")
                             .click(function () {
-                                $(this).parents(".dropdown-menu").first().find(".dropdown").hide();
+                                var $siblingDropdowns = $(this).closest(".dropdown-menu").find(".dropdown");
+
+                                $siblingDropdowns.hide();
+
+                                $(this).parent().siblings(".dropdown-item").removeClass("context-menu-item-active");
+                                $(this).parent().siblings().find(".dropdown-item").removeClass("context-menu-item-active");
+
+                                $(this).addClass("context-menu-item-active");
 
                                 var $nextDropdown = $(this).next();
                                 if ($nextDropdown.is(":hidden"))
@@ -139,7 +146,7 @@ $(function () {
                     .addClass("custom-control-input")
                     .attr("type", "checkbox")
                     .change(function () {
-                        if(!action.onToggle) return;
+                        if (!action.onToggle) return;
 
                         action.onToggle($(this).prop("checked"), $(this));
                     })

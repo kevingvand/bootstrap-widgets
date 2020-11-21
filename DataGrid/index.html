@@ -75,7 +75,7 @@
                                     {
                                         text: "A",
                                         type: "switch",
-                                        onToggle: function (state) {console.log("a", state);}
+                                        onToggle: function (state) { console.log("a", state); }
                                     },
                                     {
                                         text: "B",
@@ -89,6 +89,37 @@
                             }
                         ]
                     },
+                    {
+                        text: "hmm",
+                        actions: [
+                            {
+                                text: "a",
+                                actions: [
+                                    {
+                                        text: "am",
+                                        action: function() { console.log("am"); }
+                                    },
+                                    {
+                                        text: "af",
+                                        action: function() { console.log("af"); }
+                                    }
+                                ]
+                            },
+                            {
+                                text: "b",
+                                actions: [
+                                    {
+                                        text: "bm",
+                                        action: function() { console.log("bm"); }
+                                    },
+                                    {
+                                        text: "bf",
+                                        action: function() { console.log("bf"); }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
                 ]
             });
 
