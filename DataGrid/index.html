@@ -73,15 +73,18 @@
                                 text: "Sub 3",
                                 actions: [
                                     {
-                                        text: "Subsub 4",
-                                        keepOpen: true,
-                                        action: function () { console.log("sub sub 4") }
+                                        text: "A",
+                                        type: "switch",
+                                        onToggle: function (state) {console.log("a", state);}
                                     },
                                     {
-                                        text: "Sub sub 3",
-                                        keepParentsOpen: true,
-                                        action: function () { console.log("sub sub 3") }
-                                    }
+                                        text: "B",
+                                        type: "switch"
+                                    },
+                                    {
+                                        text: "C",
+                                        type: "switch"
+                                    },
                                 ]
                             }
                         ]

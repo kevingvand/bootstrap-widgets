@@ -63,6 +63,14 @@ $(function () {
                         return;
                     }
 
+                    if (action.type === "switch") {
+                        action.keepOpen = true;
+                        var $switch = self._buildMenuItemSwitch(action);
+                        $switch.appendTo($contextMenuItemWrapper);
+
+                        return;
+                    }
+
                     var $menuItem = $("<a>")
                         .addClass("dropdown-item")
                         .text(action.text)
@@ -107,6 +115,45 @@ $(function () {
                 });
 
                 return $contextMenu;
+            },
+
+            _buildMenuItemSwitch: function (action) {
+                var self = this;
+
+                var itemWrapper = $("<li>")
+                    .addClass("dropdown-item dropdown-item-switch");
+
+                $("<span>")
+                    .text(action.text)
+                    .appendTo(itemWrapper);
+
+                var switchWrapper = $("<div>")
+                    .addClass("custom-control custom-switch custom-switch-no-label")
+                    .appendTo(itemWrapper);
+
+                var switchInput = $("<input>")
+                    .addClass("custom-control-input")
+                    .attr("type", "checkbox")
+                    .change(function () {
+                        if(!action.onToggle) return;
+                        
+                        action.onToggle($(this).prop("checked"), $(this));
+                    })
+                    .appendTo(switchWrapper);
+
+                var switchLabel = $("<label>")
+                    .addClass("custom-control-label")
+                    .appendTo(switchWrapper);
+
+                itemWrapper.click(function () {
+                    var isChecked = switchInput.prop("checked");
+                    switchInput
+                        .prop("checked", !isChecked)
+                        .trigger("change");
+
+                });
+
+                return itemWrapper;
             },
 
             _getMenuPosition: function (mouse, direction, scrollDir) {
