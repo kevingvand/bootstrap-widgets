@@ -7,6 +7,9 @@ $(function () {
                 allowResize: true,
                 allowColumnReorder: true,
                 allowColumnHiding: true,
+
+                onRowClick: null,
+                onRowDoubleClick: null,
             },
 
             _create: function () {
@@ -226,6 +229,18 @@ $(function () {
 
                     row.element = $("<tr>")
                         .appendTo(self.tableBody);
+
+                    if(self.options.onRowClick) {
+                        row.element
+                            .addClass("datagrid-clickable-row")
+                            .click(self.options.onRowClick);
+                    }
+
+                    if(self.options.onRowDoubleClick) {
+                        row.element
+                            .addClass("datagrid-clickable-row")
+                            .dblclick(self.options.onRowDoubleClick);
+                    }
 
                     var cellOrder = self.options.columns.map(col => col.th.index());
 

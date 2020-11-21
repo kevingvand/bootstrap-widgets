@@ -126,6 +126,9 @@
             $(".table").datagrid({
                 allowResize: true,
                 allowColumnReorder: true,
+                onRowDoubleClick: function () {
+                    console.log("double click!");
+                },
                 columns: [
                     { header: "Id", width: "5%", allowSort: true, allowFilter: true },
                     { header: "Name", allowSearch: true, allowSort: true, allowFilter: true },

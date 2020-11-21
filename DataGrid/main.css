@@ -59,6 +59,10 @@ th.placeholder, td.placeholder {
     cursor: grab;
 }
 
+.datagrid-clickable-row:hover {
+    background: lightgray;
+}
+
 /* CONTEXT MENU */
 .context-menu {
     position: absolute;
