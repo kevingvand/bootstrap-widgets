@@ -14,8 +14,6 @@ $(function () {
             _build: function () {
                 var self = this;
 
-                //TODO: close menu on click anywhere
-
                 this.target.on("contextmenu", function (event) {
                     if (event.ctrlKey) return;
 
@@ -24,6 +22,12 @@ $(function () {
                     self._buildContextMenu(event);
 
                     return false;
+                });
+
+                $("body").click(function(event) {
+                    if($(event.target).parents(".context-menu").length) return;
+
+                    $(".context-menu").remove();
                 });
             },
 
@@ -136,7 +140,7 @@ $(function () {
                     .attr("type", "checkbox")
                     .change(function () {
                         if(!action.onToggle) return;
-                        
+
                         action.onToggle($(this).prop("checked"), $(this));
                     })
                     .appendTo(switchWrapper);
