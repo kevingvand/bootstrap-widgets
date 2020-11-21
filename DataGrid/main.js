@@ -406,15 +406,12 @@ $(function () {
             },
 
             _searchColumn(columnHeader, searchTerm) {
-                var searchTerm = searchTerm.toLowerCase();
                 var column = this._getColumnByHeader(columnHeader);
                 if (!column || !column.allowSearch) return;
 
                 this.options.rows.forEach(row => {
                     var cell = row.cells[column.index];
-                    var text = cell.text.toLowerCase();
-
-                    cell.hidden = (text && !text.includes(searchTerm));
+                    cell.hidden = (cell.text && !queryText(cell.text, searchTerm));
                 });
 
                 this._rebuildTableBody();
