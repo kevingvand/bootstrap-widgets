@@ -36,92 +36,92 @@
     <script>
         $(function () {
 
-            $(".table").contextMenu({
-                actions: [
-                    {
-                        text: "First",
-                        action: function () {
-                            console.log("first action");
-                        }
-                    },
-                    {
-                        isDivider: true,
-                    },
-                    {
-                        text: "Second",
-                        actions: [
-                            {
-                                text: "Sub 1",
-                                action: function () { console.log("sub 1") }
-                            },
-                            {
-                                text: "Sub 2",
-                                actions: [
-                                    {
-                                        text: "Subsub 1",
-                                        keepOpen: true,
-                                        action: function () { console.log("sub sub 1") }
-                                    },
-                                    {
-                                        text: "Sub sub 2",
-                                        keepParentsOpen: true,
-                                        action: function () { console.log("sub sub 2") }
-                                    }
-                                ]
-                            },
-                            {
-                                text: "Sub 3",
-                                actions: [
-                                    {
-                                        text: "A",
-                                        type: "switch",
-                                        onToggle: function (state) { console.log("a", state); }
-                                    },
-                                    {
-                                        text: "B",
-                                        type: "switch"
-                                    },
-                                    {
-                                        text: "C",
-                                        type: "switch"
-                                    },
-                                ]
-                            }
-                        ]
-                    },
-                    {
-                        text: "hmm",
-                        actions: [
-                            {
-                                text: "a",
-                                actions: [
-                                    {
-                                        text: "am",
-                                        action: function() { console.log("am"); }
-                                    },
-                                    {
-                                        text: "af",
-                                        action: function() { console.log("af"); }
-                                    }
-                                ]
-                            },
-                            {
-                                text: "b",
-                                actions: [
-                                    {
-                                        text: "bm",
-                                        action: function() { console.log("bm"); }
-                                    },
-                                    {
-                                        text: "bf",
-                                        action: function() { console.log("bf"); }
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            });
+            // $(".table").contextMenu({
+            //     actions: [
+            //         {
+            //             text: "First",
+            //             action: function () {
+            //                 console.log("first action");
+            //             }
+            //         },
+            //         {
+            //             isDivider: true,
+            //         },
+            //         {
+            //             text: "Second",
+            //             actions: [
+            //                 {
+            //                     text: "Sub 1",
+            //                     action: function () { console.log("sub 1") }
+            //                 },
+            //                 {
+            //                     text: "Sub 2",
+            //                     actions: [
+            //                         {
+            //                             text: "Subsub 1",
+            //                             keepOpen: true,
+            //                             action: function () { console.log("sub sub 1") }
+            //                         },
+            //                         {
+            //                             text: "Sub sub 2",
+            //                             keepParentsOpen: true,
+            //                             action: function () { console.log("sub sub 2") }
+            //                         }
+            //                     ]
+            //                 },
+            //                 {
+            //                     text: "Sub 3",
+            //                     actions: [
+            //                         {
+            //                             text: "A",
+            //                             type: "switch",
+            //                             onToggle: function (state) { console.log("a", state); }
+            //                         },
+            //                         {
+            //                             text: "B",
+            //                             type: "switch"
+            //                         },
+            //                         {
+            //                             text: "C",
+            //                             type: "switch"
+            //                         },
+            //                     ]
+            //                 }
+            //             ]
+            //         },
+            //         {
+            //             text: "hmm",
+            //             actions: [
+            //                 {
+            //                     text: "a",
+            //                     actions: [
+            //                         {
+            //                             text: "am",
+            //                             action: function() { console.log("am"); }
+            //                         },
+            //                         {
+            //                             text: "af",
+            //                             action: function() { console.log("af"); }
+            //                         }
+            //                     ]
+            //                 },
+            //                 {
+            //                     text: "b",
+            //                     actions: [
+            //                         {
+            //                             text: "bm",
+            //                             action: function() { console.log("bm"); }
+            //                         },
+            //                         {
+            //                             text: "bf",
+            //                             action: function() { console.log("bf"); }
+            //                         }
+            //                     ]
+            //                 }
+            //             ]
+            //         }
+            //     ]
+            // });
 
             $(".table").datagrid({
                 allowResize: true,

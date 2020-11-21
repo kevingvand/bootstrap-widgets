@@ -1,4 +1,8 @@
-﻿textarea:focus, input:focus, button:focus {
+﻿html, body {
+    height: 100%;
+}
+
+textarea:focus, input:focus, button:focus {
     outline: none;
 }
 
@@ -62,4 +66,9 @@ th.placeholder, td.placeholder {
 
 .context-menu-item-active {
     background: #f8f9fa;
+}
+
+.dropdown-item-switch {
+    user-select: none;
+    -webkit-user-select: none;
 }

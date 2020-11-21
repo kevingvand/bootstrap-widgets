@@ -6,6 +6,7 @@ $(function () {
                 rows: [],
                 allowResize: true,
                 allowColumnReorder: true,
+                allowColumnHiding: true,
             },
 
             _create: function () {
@@ -47,6 +48,7 @@ $(function () {
                         .appendTo(self.tableHeadRow);
 
                     column.th = $th;
+                    column.isVisible = true;
 
                     var $thWrapper = $("<div>")
                         .addClass("w-100 m-0 p-0 d-flex justify-content-between")
@@ -80,7 +82,7 @@ $(function () {
                                 .insertAfter(self.tableHeadRow);
 
                             self.options.columns.forEach(column => {
-                                $("<td>")
+                                column.filterCell = $("<td>")
                                     .append($("<div>").addClass("h-100 d-flex justify-content-between align-items-center filter-cell"))
                                     .appendTo(self.filterRow);
                             });
@@ -208,6 +210,8 @@ $(function () {
                         }
                     }
                 });
+
+                self._setHeaderContextMenu();
             },
 
             _buildTableBody: function () {
@@ -226,7 +230,10 @@ $(function () {
                     var cellOrder = self.options.columns.map(col => col.th.index());
 
                     for (var cellIndex = 0; cellIndex < cellOrder.length; cellIndex++) {
-                        var cell = row.cells[cellOrder.indexOf(cellIndex)];
+                        var columnIndex = cellOrder.indexOf(cellIndex);
+                        if(!self.options.columns[columnIndex].isVisible) continue;
+
+                        var cell = row.cells[columnIndex];
                         cell.element = $("<td>")
                             .text(cell.text)
                             .appendTo(row.element);
@@ -285,6 +292,31 @@ $(function () {
                 this._buildTableBody();
             },
 
+            _setHeaderContextMenu: function () {
+                var self = this;
+
+                if (this.options.allowColumnHiding) {
+                    this.tableHeadRow.contextMenu({
+                        actions: [
+                            {
+                                text: "Column Visibility",
+                                actions: self.options.columns.map(column => {
+                                    return {
+                                        text: column.header,
+                                        type: "switch",
+                                        isChecked: column.isVisible,
+                                        onToggle: function (isChecked) {
+                                            self._setColumnVisibility(column.header, isChecked);
+                                        }
+                                    };
+                                })
+
+                            }
+                        ]
+                    });
+                }
+            },
+
             _getColumnFilters() {
                 var self = this;
                 this.columnFilters = {};
@@ -321,6 +353,23 @@ $(function () {
 
                 column.index = columnIndex;
                 return column;
+            },
+
+            _setColumnVisibility(columnHeader, isVisible) {
+                var column = this._getColumnByHeader(columnHeader);
+
+                column.isVisible = isVisible;
+                
+                if(isVisible) {
+                    column.th.show();
+                    column.filterCell.show();
+                } else {
+                    column.th.hide();
+                    column.filterCell.hide();
+                }
+
+                this._setHeaderContextMenu();
+                this._rebuildTableBody();
             },
 
             _sortColumn(columnHeader, direction) {

@@ -27,7 +27,10 @@ $(function () {
                 $("body").click(function (event) {
                     if ($(event.target).parents(".context-menu").length) return;
 
-                    $(".context-menu").remove();
+                    if ($(".context-menu").length) {
+                        $(".context-menu").remove();
+                        return false;
+                    }
                 });
             },
 
@@ -88,7 +91,7 @@ $(function () {
 
                         $menuItem
                             .addClass("d-flex justify-content-between align-items-center")
-                            .append($("<i>").addClass("fas fa-angle-right"))
+                            .append($("<i>").addClass("fas fa-angle-right ml-3"))
                             .attr("data-toggle", "dropdown")
                             .click(function () {
                                 var $siblingDropdowns = $(this).closest(".dropdown-menu").find(".dropdown");
@@ -135,6 +138,7 @@ $(function () {
                     .addClass("dropdown-item dropdown-item-switch");
 
                 $("<span>")
+                    .addClass("mr-3")
                     .text(action.text)
                     .appendTo(itemWrapper);
 
@@ -152,8 +156,11 @@ $(function () {
                     })
                     .appendTo(switchWrapper);
 
+                if (action.isChecked)
+                    switchInput.prop("checked", true);
+
                 var switchLabel = $("<label>")
-                    .addClass("custom-control-label")
+                    .addClass("custom-control-label mr-2")
                     .appendTo(switchWrapper);
 
                 itemWrapper.click(function () {
