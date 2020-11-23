@@ -230,13 +230,13 @@ $(function () {
                     row.element = $("<tr>")
                         .appendTo(self.tableBody);
 
-                    if(self.options.onRowClick) {
+                    if (self.options.onRowClick) {
                         row.element
                             .addClass("datagrid-clickable-row")
                             .click(self.options.onRowClick);
                     }
 
-                    if(self.options.onRowDoubleClick) {
+                    if (self.options.onRowDoubleClick) {
                         row.element
                             .addClass("datagrid-clickable-row")
                             .dblclick(self.options.onRowDoubleClick);
@@ -246,7 +246,7 @@ $(function () {
 
                     for (var cellIndex = 0; cellIndex < cellOrder.length; cellIndex++) {
                         var columnIndex = cellOrder.indexOf(cellIndex);
-                        if(!self.options.columns[columnIndex].isVisible) continue;
+                        if (!self.options.columns[columnIndex].isVisible) continue;
 
                         var cell = row.cells[columnIndex];
                         cell.element = $("<td>")
@@ -311,6 +311,7 @@ $(function () {
                 var self = this;
 
                 if (this.options.allowColumnHiding) {
+
                     this.tableHeadRow.contextMenu({
                         actions: [
                             {
@@ -374,8 +375,8 @@ $(function () {
                 var column = this._getColumnByHeader(columnHeader);
 
                 column.isVisible = isVisible;
-                
-                if(isVisible) {
+
+                if (isVisible) {
                     column.th.show();
                     column.filterCell.show();
                 } else {
@@ -383,6 +384,17 @@ $(function () {
                     column.filterCell.hide();
                 }
 
+
+                $(".no-columns-visible").remove();
+
+                if (!this.options.columns.some(col => col.isVisible))
+                {
+                    var $th = $("<th>")
+                        .addClass("no-columns-visible text-center")
+                        .text("No columns to show")
+                        .appendTo(this.tableHeadRow);
+                }
+                
                 this._setHeaderContextMenu();
                 this._rebuildTableBody();
             },
