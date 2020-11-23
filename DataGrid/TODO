@@ -4,7 +4,7 @@
 + Possibility to specify width of a column
 - Filter column
     + search
-        - & and | in search and brackets ()
+        + & and | in search and brackets ()
     + filter values
         + reset all filters (disable all button)
         - search in filters
