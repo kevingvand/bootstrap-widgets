@@ -106,6 +106,7 @@ $(function () {
                             .appendTo($filterCell)
                             .dblclick(function () {
                                 $(this).val("");
+                                $(this).trigger("input");
                             })
                             .on("input", function () {
                                 self._searchColumn(column.header, $(this).val());
