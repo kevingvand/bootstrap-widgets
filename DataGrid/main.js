@@ -100,10 +100,13 @@ $(function () {
                     if (column.allowSearch) {
                         var $filterCell = self.filterRow.find("td div.filter-cell").get(index);
                         $("<input>")
-                            .addClass("form-control")
-                            .attr("type", "search")
+                            .addClass("form-control h-auto datagrid-search-input")
+                            .attr("type", "text")
                             .attr("placeholder", "Search...")
                             .appendTo($filterCell)
+                            .dblclick(function () {
+                                $(this).val("");
+                            })
                             .on("input", function () {
                                 self._searchColumn(column.header, $(this).val());
                             });
@@ -560,7 +563,7 @@ $(function () {
 
                 this.options.rows.forEach(row => {
                     var cell = row.cells[column.index];
-                    cell.hidden = (cell.text && !queryText(cell.text, searchTerm));
+                    cell.hidden = (cell.text && !queryText(cell.text.toString(), searchTerm));
                 });
 
                 this._rebuildTableBody();

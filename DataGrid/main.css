@@ -25,6 +25,7 @@ th.sortable:hover .datagrid-header-icon {
 
 .filter-row td {
     vertical-align: middle;
+    padding: .5rem .3rem;
 }
 
 .action-icon:hover {
@@ -61,6 +62,11 @@ th.placeholder, td.placeholder {
 
 .datagrid-clickable-row:hover {
     background: lightgray;
+}
+
+.datagrid-search-input {
+    font-size: .7rem;
+    padding: .1rem .2rem;
 }
 
 /* CONTEXT MENU */
