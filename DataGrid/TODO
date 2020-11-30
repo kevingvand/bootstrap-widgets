@@ -9,9 +9,13 @@
         + reset all filters (disable all button)
         - search in filters
 + Sort asc/desc
+    - sort number if column is type number
 + reorder columns
 + show/hide columns
-- pagination
++ pagination
+    - load specific item from url 
+        urlParams = new URLSearchParams(window.location.search);
+        urlParams.get('index')
 + row click function
 - action icons (at end of table)
 - row right click context menu
@@ -19,3 +23,4 @@
 - hide function for filter row
 - full screen mode (somehow?)
 - option for saving specific settings in session (see ValiBridge collapsible card)
+- Speed improvements for > 100.000 rows

@@ -7,6 +7,9 @@ $(function () {
                 allowResize: true,
                 allowColumnReorder: true,
                 allowColumnHiding: true,
+                enablePagination: false,
+
+                pageSizes: [10, 25, 50, -1],
 
                 onRowClick: null,
                 onRowDoubleClick: null,
@@ -24,7 +27,9 @@ $(function () {
                 var self = this;
 
                 this._buildTableHead();
+                this._buildPagination();
                 this._buildTableBody();
+
 
                 //TODO: remove
                 window.cols = this.options.columns;
@@ -223,7 +228,13 @@ $(function () {
                 this.tableBody = $("<tbody>")
                     .appendTo(this.table);
 
-                this.options.rows.forEach((row) => {
+                var rows = this.options.rows.filter(row => !row.cells.some(cell => cell.hidden));
+
+                if (this.options.enablePagination) {
+                    rows = rows.slice(this.pagination.currentIndex, this.pagination.currentIndex + this.pagination.visibleItems);
+                }
+
+                rows.forEach((row) => {
 
                     if (row.cells.some(cell => { return cell.hidden })) return;
 
@@ -267,6 +278,100 @@ $(function () {
                 }
             },
 
+            _buildPagination: function () {
+                var self = this;
+
+                if (this.options.enablePagination) {
+
+                    var defaultPageSize = self.options.pageSizes[0];
+
+                    //TODO: load options from url
+                    this.pagination = {
+                        pageSize: defaultPageSize,
+                        currentPage: 0,
+                        totalPages: Math.ceil(self.options.rows.length / defaultPageSize)
+                    };
+
+                    this.tableWrapper = $("<div>")
+                        .addClass("datagrid-wrapper")
+                        .insertAfter(this.table)
+                        .append(this.table);
+
+                    this.paginationWrapper = $("<div>")
+                        .addClass("datagrid-pagination-wrapper w-100 d-flex justify-content-between align-items-center")
+                        .appendTo(this.tableWrapper);
+
+                    this.paginationSettings = $("<div>")
+                        .addClass("d-flex align-items-center datagrid-pagination-settings")
+                        .appendTo(this.paginationWrapper);
+
+                    $("<span>")
+                        .addClass("text-nowrap d-block mr-2")
+                        .text("Rows per page: ")
+                        .appendTo(this.paginationSettings);
+
+                    var $pageSizeSelect = $("<select>")
+                        .addClass("form-control badge h-auto")
+                        .change(function () {
+                            self.pagination.pageSize = parseInt($(this).val());
+                            self.pagination.totalPages = Math.ceil(self.options.rows.length / self.pagination.pageSize);
+                            self._switchPage(self.pagination.currentPage);
+                        })
+                        .appendTo(this.paginationSettings);
+
+                    this.options.pageSizes.forEach(size => {
+                        var text = size === -1 ? "All" : size;
+                        $("<option>")
+                            .val(size)
+                            .text(text)
+                            .appendTo($pageSizeSelect);
+                    });
+
+                    this.paginationNavigation = $("<div>")
+                        .addClass("d-flex align-items-center datagrid-pagination-navigation")
+                        .appendTo(this.paginationWrapper);
+
+                    this.paginationNavigationInfo = $("<span>")
+                        .addClass("datagrid-pagination-navigation-info")
+                        .text("10-20 of 100")
+                        .appendTo(this.paginationNavigation);
+
+                    $("<button>")
+                        .addClass("btn btn-primary badge ml-2 datagrid-pagination-button-left")
+                        .append($("<i>").addClass("fas fa-angle-double-left"))
+                        .click(function () {
+                            self._switchPage(0);
+                        })
+                        .appendTo(this.paginationNavigation);
+
+                    $("<button>")
+                        .addClass("btn btn-primary badge ml-1 datagrid-pagination-button-left")
+                        .append($("<i>").addClass("fas fa-angle-left"))
+                        .click(function () {
+                            self._switchPage(self.pagination.currentPage - 1);
+                        })
+                        .appendTo(this.paginationNavigation);
+
+                    $("<button>")
+                        .addClass("btn btn-primary badge ml-1 datagrid-pagination-button-right")
+                        .append($("<i>").addClass("fas fa-angle-right"))
+                        .click(function () {
+                            self._switchPage(self.pagination.currentPage + 1);
+                        })
+                        .appendTo(this.paginationNavigation);
+
+                    $("<button>")
+                        .addClass("btn btn-primary badge ml-1 datagrid-pagination-button-right")
+                        .append($("<i>").addClass("fas fa-angle-double-right"))
+                        .click(function () {
+                            self._switchPage(self.pagination.totalPages - 1);
+                        })
+                        .appendTo(this.paginationNavigation);
+
+                    this._switchPage(this.pagination.currentPage);
+                }
+            },
+
             _buildFilterSwitch: function (filter) {
                 var self = this;
 
@@ -302,9 +407,16 @@ $(function () {
                 return itemWrapper;
             },
 
-            _rebuildTableBody: function () {
-                this.tableBody.remove();
-                this._buildTableBody();
+            _rebuildTableBody: function (updatePagination) {
+                if (this.tableBody) {
+                    this.tableBody.remove();
+
+                    if(this.options.enablePagination && !updatePagination) {
+                        this._switchPage(this.pagination.currentPage);
+                    } else {
+                        this._buildTableBody();
+                    }
+                }
             },
 
             _setHeaderContextMenu: function () {
@@ -387,16 +499,41 @@ $(function () {
 
                 $(".no-columns-visible").remove();
 
-                if (!this.options.columns.some(col => col.isVisible))
-                {
+                if (!this.options.columns.some(col => col.isVisible)) {
                     var $th = $("<th>")
                         .addClass("no-columns-visible text-center")
                         .text("No columns to show")
                         .appendTo(this.tableHeadRow);
                 }
-                
+
                 this._setHeaderContextMenu();
                 this._rebuildTableBody();
+            },
+
+            _switchPage(newPage) {
+                var self = this;
+
+                var totalRows = this.options.rows.filter(row => !row.cells.some(cell => cell.hidden)).length;
+                var newIndex = this.pagination.pageSize == -1 ? 0 : newPage * this.pagination.pageSize;
+
+                if (newIndex > totalRows) return;
+
+                this.pagination.visibleItems = this.pagination.pageSize == -1 ? totalRows : this.pagination.pageSize;
+
+                if (totalRows - newIndex <= this.pagination.visibleItems) {
+                    this.paginationWrapper.find(".datagrid-pagination-button-right").prop("disabled", true);
+                    this.pagination.visibleItems = totalRows - newIndex;
+                } else {
+                    this.paginationWrapper.find(".datagrid-pagination-button-right").prop("disabled", false);
+                }
+
+                this.paginationWrapper.find(".datagrid-pagination-button-left").prop("disabled", newIndex === 0);
+
+                this.paginationNavigationInfo.text(`${newIndex + 1}-${newIndex + this.pagination.visibleItems} of ${totalRows}`)
+
+                this.pagination.currentIndex = newIndex;
+                this.pagination.currentPage = newPage;
+                this._rebuildTableBody(true);
             },
 
             _sortColumn(columnHeader, direction) {

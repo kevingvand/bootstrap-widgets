@@ -124,23 +124,62 @@
             //     ]
             // });
 
+            var genRows = [];
+            for (var i = 0; i < 1000; i++) {
+                var row = { cells: [{ text: i }, { text: i % 2 == 0 ? "Even" : "Odd" }, { text: Math.random().toString(36).substr(7, 1) }] };
+                genRows.push(row)
+            }
+
             $(".table").datagrid({
                 allowResize: true,
                 allowColumnReorder: true,
+                enablePagination: true,
                 onRowDoubleClick: function () {
                     console.log("double click!");
                 },
                 columns: [
-                    { header: "Id", width: "5%", allowSort: true, allowFilter: true },
+                    { header: "Id", width: "5%", allowSort: true, allowFilter: false, allowSearch: true },
                     { header: "Name", allowSearch: true, allowSort: true, allowFilter: true },
                     { header: "Description", allowSearch: true, allowFilter: true },
                 ],
-                rows: [
+                rows: genRows /*[
                     { cells: [{ text: "1" }, { text: "abc" }, { text: "A" }] },
                     { cells: [{ text: "2" }, { text: "def" }, { text: "A" }] },
                     { cells: [{ text: "3" }, { text: "TestC" }, { text: "B" }] },
-                    { cells: [{ text: "4" }, { text: "TestD" }, { text: "B" }] }
-                ]
+                    { cells: [{ text: "4" }, { text: "TestD" }, { text: "B" }] },
+                    { cells: [{ text: "5" }, { text: "abc" }, { text: "A" }] },
+                    { cells: [{ text: "6" }, { text: "def" }, { text: "A" }] },
+                    { cells: [{ text: "7" }, { text: "TestC" }, { text: "B" }] },
+                    { cells: [{ text: "8" }, { text: "TestD" }, { text: "B" }] },
+                    { cells: [{ text: "9" }, { text: "abc" }, { text: "A" }] },
+                    { cells: [{ text: "10" }, { text: "def" }, { text: "A" }] },
+                    { cells: [{ text: "11" }, { text: "TestC" }, { text: "B" }] },
+                    { cells: [{ text: "12" }, { text: "TestD" }, { text: "B" }] },
+                    { cells: [{ text: "13" }, { text: "abc" }, { text: "A" }] },
+                    { cells: [{ text: "14" }, { text: "def" }, { text: "A" }] },
+                    { cells: [{ text: "15" }, { text: "TestC" }, { text: "B" }] },
+                    { cells: [{ text: "16" }, { text: "TestD" }, { text: "B" }] },
+                    { cells: [{ text: "17" }, { text: "abc" }, { text: "A" }] },
+                    { cells: [{ text: "18" }, { text: "def" }, { text: "A" }] },
+                    { cells: [{ text: "19" }, { text: "TestC" }, { text: "B" }] },
+                    { cells: [{ text: "20" }, { text: "TestD" }, { text: "B" }] },
+                    { cells: [{ text: "21" }, { text: "abc" }, { text: "A" }] },
+                    { cells: [{ text: "22" }, { text: "def" }, { text: "A" }] },
+                    { cells: [{ text: "23" }, { text: "TestC" }, { text: "B" }] },
+                    { cells: [{ text: "24" }, { text: "TestD" }, { text: "B" }] },
+                    { cells: [{ text: "25" }, { text: "abc" }, { text: "A" }] },
+                    { cells: [{ text: "26" }, { text: "def" }, { text: "A" }] },
+                    { cells: [{ text: "27" }, { text: "TestC" }, { text: "B" }] },
+                    { cells: [{ text: "28" }, { text: "TestD" }, { text: "B" }] },
+                    { cells: [{ text: "29" }, { text: "abc" }, { text: "A" }] },
+                    { cells: [{ text: "30" }, { text: "def" }, { text: "A" }] },
+                    { cells: [{ text: "31" }, { text: "TestC" }, { text: "B" }] },
+                    { cells: [{ text: "32" }, { text: "TestD" }, { text: "B" }] },
+                    { cells: [{ text: "33" }, { text: "abc" }, { text: "A" }] },
+                    { cells: [{ text: "34" }, { text: "def" }, { text: "A" }] },
+                    { cells: [{ text: "35" }, { text: "TestC" }, { text: "B" }] },
+                    { cells: [{ text: "36" }, { text: "TestD" }, { text: "B" }] },
+                ]*/
             });
 
             // Handle nested dropdown
