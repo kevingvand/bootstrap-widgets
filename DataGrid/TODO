@@ -19,6 +19,7 @@
     - scroll to specified item?
 + row click function
 - action icons (at end of table)
+    - disable / enable actions on row level
 - row right click context menu
 - style search "x" for clearing input
 - hide function for filter row

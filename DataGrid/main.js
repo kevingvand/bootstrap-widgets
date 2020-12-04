@@ -13,6 +13,8 @@ $(function () {
 
                 pageSizes: [10, 25, 50, -1],
 
+                actions: [],
+
                 onRowClick: null,
                 onRowDoubleClick: null,
             },
@@ -48,7 +50,7 @@ $(function () {
 
                         var $row = this.tableBody.find(`tr:nth-child(${rowIndex + 1})`);
 
-                        if(this.options.scrollToItem)
+                        if (this.options.scrollToItem)
                             this._scrollToItem(rowIndex);
 
                         $row.animate({
@@ -257,6 +259,15 @@ $(function () {
                         }
                     }
                 });
+
+                if (this.options.actions.length) {
+                    this.tableHeadRow.append("<th>")
+                        .addClass("datagrid-action-header");
+
+                    if (this.filterRow)
+                        this.filterRow.append("<td>")
+                            .addClass("datagrid-action-header");
+                }
 
                 if (this.options.stickyHeader) {
                     this.tableHead.find("td, th")
@@ -563,7 +574,7 @@ $(function () {
                 if (this.options.stickyHeader)
                     scrollTop -= this.tableHead.height();
 
-                if($([document.documentElement, document.body]).scrollTop == scrollTop) return;
+                if ($([document.documentElement, document.body]).scrollTop == scrollTop) return;
 
                 $([document.documentElement, document.body]).animate({
                     scrollTop: scrollTop
