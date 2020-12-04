@@ -7,9 +7,11 @@
         + & and | in search and brackets ()
     + filter values
         + reset all filters (disable all button)
+        - Enable all filters
+        + Max filter Count
         - search in filters
 + Sort asc/desc
-    - sort number if column is type number
+    + sort number if column is type number
 + reorder columns
 + show/hide columns
 + pagination

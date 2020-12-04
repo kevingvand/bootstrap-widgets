@@ -89,7 +89,7 @@ $(function () {
                                 .addClass("filter-row")
                                 .insertAfter(self.tableHeadRow);
 
-                            self.options.columns.forEach(column => {
+                            self.options.columns.forEach((column) => {
                                 column.filterCell = $("<td>")
                                     .append($("<div>").addClass("h-100 d-flex justify-content-between align-items-center filter-cell"))
                                     .appendTo(self.filterRow);
@@ -135,7 +135,9 @@ $(function () {
                             .addClass("dropdown-menu dropdown-menu-right")
                             .appendTo($filterDropdown);
 
-                        this.columnFilters[column.header].forEach(filter => {
+                        this.columnFilters[column.header].forEach((filter, index) => {
+                            if(column.maxFilterCount > 0 && index >= column.maxFilterCount) return;
+
                             filter.switch = self._buildFilterSwitch(filter)
                                 .appendTo($filterItems);
                         });
