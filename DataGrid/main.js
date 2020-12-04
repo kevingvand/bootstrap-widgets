@@ -18,7 +18,7 @@ $(function () {
             _create: function () {
 
                 this.table = this.element;
-
+                this.id = toCamelCase(this.element.attr("id"));
 
                 this._build();
             },
@@ -26,10 +26,35 @@ $(function () {
             _build: function () {
                 var self = this;
 
+                this.urlParameters = new URLSearchParams(window.location.search);
+
                 this._buildTableHead();
                 this._buildPagination();
                 this._buildTableBody();
 
+                if(this.options.enablePagination) {
+
+                    var urlIndex = this.urlParameters.get(`${this.id}Index`);
+                    if(this.id && urlIndex) {
+                        this.pagination.currentPage = Math.floor(urlIndex/this.pagination.pageSize);
+                    }
+
+                    this._switchPage(this.pagination.currentPage);
+
+                    if(urlIndex) {
+                        var rowIndex = urlIndex % this.pagination.pageSize + 1;
+                        this.tableBody.find(`tr:nth-child(${rowIndex})`).animate({
+                            backgroundColor: "#ccc"
+                        }, 500, function() {
+                            var $this = $(this);
+                            setTimeout(function() {
+                                $this.animate({
+                                    backgroundColor: ""
+                                }, 500);
+                            }, 1000)
+                        })
+                    }
+                 }
 
                 //TODO: remove
                 window.cols = this.options.columns;
@@ -374,7 +399,6 @@ $(function () {
                         })
                         .appendTo(this.paginationNavigation);
 
-                    this._switchPage(this.pagination.currentPage);
                 }
             },
 
