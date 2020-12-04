@@ -8,6 +8,8 @@ $(function () {
                 allowColumnReorder: true,
                 allowColumnHiding: true,
                 enablePagination: false,
+                scrollToItem: true,
+                stickyHeader: false,
 
                 pageSizes: [10, 25, 50, -1],
 
@@ -32,29 +34,35 @@ $(function () {
                 this._buildPagination();
                 this._buildTableBody();
 
-                if(this.options.enablePagination) {
+                if (this.options.enablePagination) {
 
                     var urlIndex = this.urlParameters.get(`${this.id}Index`);
-                    if(this.id && urlIndex) {
-                        this.pagination.currentPage = Math.floor(urlIndex/this.pagination.pageSize);
+                    if (this.id && urlIndex) {
+                        this.pagination.currentPage = Math.floor(urlIndex / this.pagination.pageSize);
                     }
 
                     this._switchPage(this.pagination.currentPage);
 
-                    if(urlIndex) {
-                        var rowIndex = urlIndex % this.pagination.pageSize + 1;
-                        this.tableBody.find(`tr:nth-child(${rowIndex})`).animate({
+                    if (urlIndex) {
+                        var rowIndex = urlIndex % this.pagination.pageSize;
+
+                        var $row = this.tableBody.find(`tr:nth-child(${rowIndex + 1})`);
+
+                        if(this.options.scrollToItem)
+                            this._scrollToItem(rowIndex);
+
+                        $row.animate({
                             backgroundColor: "#ccc"
-                        }, 500, function() {
+                        }, 500, function () {
                             var $this = $(this);
-                            setTimeout(function() {
+                            setTimeout(function () {
                                 $this.animate({
                                     backgroundColor: ""
                                 }, 500);
                             }, 1000)
                         })
                     }
-                 }
+                }
 
                 //TODO: remove
                 window.cols = this.options.columns;
@@ -161,7 +169,7 @@ $(function () {
                             .appendTo($filterDropdown);
 
                         this.columnFilters[column.header].forEach((filter, index) => {
-                            if(column.maxFilterCount > 0 && index >= column.maxFilterCount) return;
+                            if (column.maxFilterCount > 0 && index >= column.maxFilterCount) return;
 
                             filter.switch = self._buildFilterSwitch(filter)
                                 .appendTo($filterItems);
@@ -249,6 +257,13 @@ $(function () {
                         }
                     }
                 });
+
+                if (this.options.stickyHeader) {
+                    this.tableHead.find("td, th")
+                        .addClass("datagrid-header-sticky");
+
+                    this.tableHead.find("td").css("top", this.tableHeadRow.height());
+                }
 
                 self._setHeaderContextMenu();
             },
@@ -441,7 +456,7 @@ $(function () {
                 if (this.tableBody) {
                     this.tableBody.remove();
 
-                    if(this.options.enablePagination && !updatePagination) {
+                    if (this.options.enablePagination && !updatePagination) {
                         this._switchPage(this.pagination.currentPage);
                     } else {
                         this._buildTableBody();
@@ -540,6 +555,19 @@ $(function () {
                 this._rebuildTableBody();
             },
 
+            _scrollToItem(rowIndex) {
+                var $row = this.tableBody.find(`tr:nth-child(${rowIndex + 1})`);
+
+                var scrollTop = $row.offset().top;
+
+                if (this.options.stickyHeader)
+                    scrollTop -= this.tableHead.height();
+
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: scrollTop
+                }, 500);
+            },
+
             _switchPage(newPage) {
                 var self = this;
 
@@ -577,8 +605,8 @@ $(function () {
                     var aContent = a.cells[column.index].text;
                     var bContent = b.cells[column.index].text;
 
-                    if(typeof aContent === "string") aContent = aContent.toLowerCase();
-                    if(typeof bContent === "string") bContent = bContent.toLowerCase();
+                    if (typeof aContent === "string") aContent = aContent.toLowerCase();
+                    if (typeof bContent === "string") bContent = bContent.toLowerCase();
 
                     if (aContent < bContent) return sortDesc ? 1 : -1;
                     if (aContent > bContent) return sortDesc ? -1 : 1;
@@ -598,6 +626,7 @@ $(function () {
                 });
 
                 this._rebuildTableBody();
+                this._scrollToItem(0);
             },
 
             _filterColumn(columnHeader) {

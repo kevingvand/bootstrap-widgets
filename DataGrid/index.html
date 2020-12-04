@@ -139,9 +139,11 @@
             }
 
             $(".table").datagrid({
+                stickyHeader: true,
                 allowResize: true,
                 allowColumnReorder: true,
                 enablePagination: true,
+                pageSizes: [100],
                 onRowDoubleClick: function () {
                     console.log("double click!");
                 },

@@ -60,6 +60,11 @@ th.placeholder, td.placeholder {
     cursor: grab;
 }
 
+.datagrid-header-sticky {
+    position: sticky;
+    top: 0;
+}
+
 .datagrid-clickable-row:hover {
     background: lightgray;
 }

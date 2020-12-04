@@ -5,6 +5,7 @@
 - Filter column
     + search
         + & and | in search and brackets ()
+        - fix integer searches
     + filter values
         + reset all filters (disable all button)
         - Enable all filters
@@ -16,6 +17,7 @@
 + show/hide columns
 + pagination
     + load specific item from url
+    - scroll to specified item?
 + row click function
 - action icons (at end of table)
 - row right click context menu
