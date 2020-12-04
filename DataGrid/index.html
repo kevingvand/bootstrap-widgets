@@ -24,14 +24,18 @@
     <script src="../jquery-ui.js"></script>
     <script src="../bootstrap.min.js"></script>
 
-        <script>
-            window.toCamelCase = function (str){
-                let arr = str.split('-');
-                let capital = arr.map((item, index) => index ? item.charAt(0).toUpperCase() + item.slice(1).toLowerCase() : item.toLowerCase());
+    <script>
+        window.toCamelCase = function (str) {
+            let arr = str.split('-');
+            let capital = arr.map((item, index) => index ? item.charAt(0).toUpperCase() + item.slice(1).toLowerCase() : item.toLowerCase());
 
-                return capital.join("");
-            }
-            </script>
+            return capital.join("");
+        }
+
+        window.toKebabCase = function (str) {
+            return str.replace(/([a-z0-9]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase();
+        }
+    </script>
     <script src="jquery.sorttable.js"></script>
     <script src="search.js"></script>
     <script src="contextMenu.js"></script>
@@ -128,7 +132,7 @@
 
             var genRows = [];
             for (var i = 0; i < 1000; i++) {
-                var row = { cells: [{ text: i }, { text: i % 2 == 0 ? "Even" : "Odd" }, { text: Math.random().toString(36).substr(7, 1) }], actions: [{name: "open", arguments: [i]}, {name: "close", disabled: i % 2}] };
+                var row = { cells: [{ text: i }, { text: i % 2 == 0 ? "Even" : "Odd" }, { text: Math.random().toString(36).substr(7, 1) }], actions: [{ name: "open", dataAttributes: {href: `open/${i}`} }, { name: "close", disabled: (i % 2 == 0) }] };
                 genRows.push(row)
             }
 
@@ -141,11 +145,15 @@
                     {
                         name: "open",
                         icon: "folder-open",
-                        action: (id) => {
-                            console.log("open", id);
-                        },
+                        dataAttributes: {
+                            navigation: "",
+                            href: "open"
+                        }
+                    },
+                    {
                         name: "close",
-                        icon: "folder-open",
+                        tooltip: "Close folder",
+                        icon: "folder",
                         action: (id) => {
                             console.log("close", id);
                         }

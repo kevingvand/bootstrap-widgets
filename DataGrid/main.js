@@ -321,6 +321,10 @@ $(function () {
                             .text(cell.text)
                             .appendTo(row.element);
                     }
+
+                    if (this.options.actions.length) {
+                        self._buildActions(row);
+                    }
                 });
 
                 if (!this.tableBody.find("tr").length) {
@@ -333,6 +337,54 @@ $(function () {
                             .attr("colspan", this.options.columns.length))
                         .appendTo(this.tableBody);
                 }
+            },
+
+            _buildActions: function (row) {
+                var self = this;
+
+                var $actionCell = $("<td>")
+                    .addClass("datagrid-action-cell")
+                    .appendTo(row.element);
+
+                this.options.actions.forEach(action => {
+
+                    var rowAction = row.actions.find(rowAction => rowAction.name == action.name);
+
+                    $actionButton = $("<button>")
+                        .addClass("btn btn-primary")
+                        .prop("disabled", action.disabled || rowAction.disabled)
+                        .append($("<i>")
+                            .addClass(`fas fa-${action.icon}`))
+                        .appendTo($actionCell);
+
+                    if (action.action) {
+                        $actionButton.click(function () {
+                            var arguments = [];
+                            if (rowAction.arguments)
+                                arguments = [...rowAction.arguments];
+
+                            action.action(...arguments);
+                        });
+                    }
+
+                    if (action.dataAttributes) {
+                        Object.keys(action.dataAttributes).forEach(attribute => {
+                            $actionButton.attr(`data-${toKebabCase(attribute)}`, action.dataAttributes[attribute]);
+                        });
+                    }
+
+                    if (rowAction.dataAttributes) {
+                        Object.keys(rowAction.dataAttributes).forEach(attribute => {
+                            $actionButton.attr(`data-${toKebabCase(attribute)}`, rowAction.dataAttributes[attribute]);
+                        });
+                    }
+
+                    if (action.tooltip) {
+                        $actionButton
+                            .attr("data-toggle", "tooltip")
+                            .attr("title", action.tooltip);
+                    }
+                });
             },
 
             _buildPagination: function () {

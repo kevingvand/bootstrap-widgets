@@ -74,6 +74,16 @@ th.placeholder, td.placeholder {
     padding: .1rem .2rem;
 }
 
+.datagrid-action-cell {
+    text-align: right;
+    width: auto !important;
+}
+
+.datagrid-action-cell .btn {
+    width: 45px;
+    margin: 2px;
+}
+
 /* CONTEXT MENU */
 .context-menu {
     position: absolute;
