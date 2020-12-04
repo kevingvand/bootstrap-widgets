@@ -547,11 +547,15 @@ $(function () {
                 var sortDesc = direction === "DESC";
 
                 this.options.rows.sort((a, b) => {
-                    var aText = a.cells[column.index].text.toLowerCase();
-                    var bText = b.cells[column.index].text.toLowerCase();
 
-                    if (aText < bText) return sortDesc ? 1 : -1;
-                    if (aText > bText) return sortDesc ? -1 : 1;
+                    var aContent = a.cells[column.index].text;
+                    var bContent = b.cells[column.index].text;
+
+                    if(typeof aContent === "string") aContent = aContent.toLowerCase();
+                    if(typeof bContent === "string") bContent = bContent.toLowerCase();
+
+                    if (aContent < bContent) return sortDesc ? 1 : -1;
+                    if (aContent > bContent) return sortDesc ? -1 : 1;
                     return 0;
                 });
 
