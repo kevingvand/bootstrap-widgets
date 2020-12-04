@@ -563,6 +563,8 @@ $(function () {
                 if (this.options.stickyHeader)
                     scrollTop -= this.tableHead.height();
 
+                if($([document.documentElement, document.body]).scrollTop == scrollTop) return;
+
                 $([document.documentElement, document.body]).animate({
                     scrollTop: scrollTop
                 }, 500);
@@ -574,7 +576,9 @@ $(function () {
                 var totalRows = this.options.rows.filter(row => !row.cells.some(cell => cell.hidden)).length;
                 var newIndex = this.pagination.pageSize == -1 ? 0 : newPage * this.pagination.pageSize;
 
-                if (newIndex > totalRows) return;
+                if (newIndex > totalRows) {
+                    newIndex = Math.floor(totalRows / this.pagination.pageSize);
+                }
 
                 this.pagination.visibleItems = this.pagination.pageSize == -1 ? totalRows : this.pagination.pageSize;
 
@@ -622,7 +626,7 @@ $(function () {
 
                 this.options.rows.forEach(row => {
                     var cell = row.cells[column.index];
-                    cell.hidden = (cell.text && !queryText(cell.text.toString(), searchTerm));
+                    cell.hidden = (cell.text.toString() && !queryText(cell.text.toString(), searchTerm));
                 });
 
                 this._rebuildTableBody();

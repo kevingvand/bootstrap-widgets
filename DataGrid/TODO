@@ -5,7 +5,6 @@
 - Filter column
     + search
         + & and | in search and brackets ()
-        - fix integer searches
     + filter values
         + reset all filters (disable all button)
         - Enable all filters
