@@ -2,7 +2,7 @@
 - specify table source
     - use a mapper to map any api to a table format
 + Possibility to specify width of a column
-- Filter column
++ Filter column
     + search
         + & and | in search and brackets ()
     + filter values
@@ -13,6 +13,7 @@
 + Sort asc/desc
     + sort number if column is type number
 + reorder columns
+    - Re-init resizing of columns on column reorder
 + show/hide columns
 + pagination
     + load specific item from url
@@ -20,7 +21,7 @@
 + row click function
 - action icons (at end of table)
     + disable / enable actions on row level
-    - column visibility, hide actions if no columns
+    + column visibility, hide actions if no columns
     + column order - account for action cell
 - row right click context menu
 - style search "x" for clearing input

@@ -60,7 +60,9 @@ $(function () {
                             setTimeout(function () {
                                 $this.animate({
                                     backgroundColor: ""
-                                }, 500);
+                                }, 500, function() {
+                                    $this.css("background-color", "");
+                                });
                             }, 1000)
                         })
                     }
