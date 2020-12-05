@@ -21,6 +21,7 @@
 - action icons (at end of table)
     + disable / enable actions on row level
     - column visibility, hide actions if no columns
+    + column order - account for action cell
 - row right click context menu
 - style search "x" for clearing input
 - hide function for filter row

@@ -261,12 +261,26 @@ $(function () {
                 });
 
                 if (this.options.actions.length) {
-                    this.tableHeadRow.append("<th>")
-                        .addClass("datagrid-action-header");
+
+                    var column = { header: "_actions", isVisible: true };
+                    column.th = $("<th>")
+                        .addClass("datagrid-action-header text-right")
+                        .appendTo(this.tableHeadRow);
+
+                    if (this.options.allowColumnReorder) {
+                        $("<span>")
+                            .addClass("grip-icons mr-3")
+                            .append($("<i>")
+                                .addClass("fas fa-grip-vertical"))
+                            .prependTo(column.th);
+                    }
 
                     if (this.filterRow)
-                        this.filterRow.append("<td>")
-                            .addClass("datagrid-action-header");
+                        column.filterCell = $("<td>")
+                            .addClass("datagrid-action-header")
+                            .appendTo(this.filterRow);
+
+                    this.options.columns.push(column);
                 }
 
                 if (this.options.stickyHeader) {
@@ -314,6 +328,7 @@ $(function () {
 
                     for (var cellIndex = 0; cellIndex < cellOrder.length; cellIndex++) {
                         var columnIndex = cellOrder.indexOf(cellIndex);
+                        if (self.options.columns[columnIndex].header === "_actions") continue;
                         if (!self.options.columns[columnIndex].isVisible) continue;
 
                         var cell = row.cells[columnIndex];
@@ -343,8 +358,12 @@ $(function () {
                 var self = this;
 
                 var $actionCell = $("<td>")
-                    .addClass("datagrid-action-cell")
-                    .appendTo(row.element);
+                    .addClass("datagrid-action-cell");
+
+                var actionsColumnIndex = this._getColumnByHeader("_actions").th.index("th:visible");
+                if (actionsColumnIndex === 0)
+                    row.element.prepend($actionCell);
+                else row.element.find(`td:nth-child(${actionsColumnIndex})`).after($actionCell)
 
                 this.options.actions.forEach(action => {
 
@@ -536,7 +555,7 @@ $(function () {
                         actions: [
                             {
                                 text: "Column Visibility",
-                                actions: self.options.columns.map(column => {
+                                actions: self.options.columns.filter(column => !column.header.startsWith("_")).map(column => {
                                     return {
                                         text: column.header,
                                         type: "switch",
@@ -592,6 +611,7 @@ $(function () {
             },
 
             _setColumnVisibility(columnHeader, isVisible) {
+                var self = this;
                 var column = this._getColumnByHeader(columnHeader);
 
                 column.isVisible = isVisible;
@@ -604,14 +624,28 @@ $(function () {
                     column.filterCell.hide();
                 }
 
-
                 $(".no-columns-visible").remove();
+                if (this.paginationWrapper)
+                    this.paginationWrapper.addClass("d-flex");
 
-                if (!this.options.columns.some(col => col.isVisible)) {
+                if (!this.options.columns.filter(col => !col.header.startsWith("_")).some(col => col.isVisible)) {
+
+                    this.options.columns.filter(col => col.header.startsWith("_")).forEach(col => {
+                        col.th.hide();
+                        col.filterCell.hide();
+                    });
+
                     var $th = $("<th>")
                         .addClass("no-columns-visible text-center")
                         .text("No columns to show")
                         .appendTo(this.tableHeadRow);
+
+                    if (this.paginationWrapper) this.paginationWrapper.removeClass("d-flex").hide();
+                } else {
+                    this.options.columns.filter(col => col.header.startsWith("_")).forEach(col => {
+                        col.th.show();
+                        col.filterCell.show();
+                    });
                 }
 
                 this._setHeaderContextMenu();
