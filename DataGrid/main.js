@@ -78,6 +78,8 @@ $(function () {
             _buildTableHead: function () {
                 var self = this;
 
+                this.hiddenColumns = [];
+
                 this.tableHead = $("<thead>")
                     .addClass("thead-light")
                     .appendTo(this.table);
@@ -233,7 +235,7 @@ $(function () {
                             placeholder: 'placeholder',
                             helperCells: null,
                             tolerance: "pointer",
-                            axis: "x"
+                            axis: "x",
                         }, {
                             update: function () {
                                 self.tableHeadRow.find("th").each(function (index) {
@@ -242,7 +244,7 @@ $(function () {
                                 });
 
                                 self._setColumnResize();
-                            }
+                            },
                         }).disableSelection();
                     }
                 });
@@ -332,6 +334,8 @@ $(function () {
 
                     for (var cellIndex = 0; cellIndex < cellOrder.length; cellIndex++) {
                         var columnIndex = cellOrder.indexOf(cellIndex);
+
+                        if (columnIndex === -1) continue;
                         if (self.options.columns[columnIndex].header === "_actions") continue;
                         if (!self.options.columns[columnIndex].isVisible) continue;
 
@@ -649,12 +653,12 @@ $(function () {
                                     if (!column.calculated.width) column.calculated.width = ui.originalSize.width;
                                     var widthDifference = ui.size.width - column.calculated.width;
 
-                                    var $neighbour = $(this).next();
-
+                                    var $neighbour = $(this).nextAll("th:visible:first");
+                                    var neighbourIndex = $neighbour.index();
 
                                     var newNeighbourWidth = $neighbour.outerWidth() - widthDifference;
 
-                                    var neighbourColumn = columns.find(col => col.index === index + 1);
+                                    var neighbourColumn = columns.find(col => col.index === neighbourIndex);
 
                                     if (widthDifference && (newNeighbourWidth >= neighbourColumn.minWidth)) {
                                         $neighbour.width(neighbourColumn.calculated.width = $neighbour.width() - widthDifference);
@@ -664,8 +668,9 @@ $(function () {
                                     }
                                 },
                                 stop: function (event, ui) {
+                                    var $neighbour = $(this).nextAll("th:visible:first");
                                     column.calculated.width = column.th.width();
-                                    columns.find(col => col.index === index + 1).calculated.width = column.th.next().width();
+                                    columns.find(col => col.index === $neighbour.index()).calculated.width = column.th.next().width();
                                 }
                             });
                         }
@@ -684,7 +689,7 @@ $(function () {
                         var column = self._getColumnByHeader(header);
                         var previousWidth = column.th.width();
                         column.th.width(column.minWidth);
-                        column.th.next().width(column.th.next().width() + previousWidth - column.minWidth);
+                        column.th.next("th:visible").width(column.th.next().width() + previousWidth - column.minWidth);
                         return false;
                     });
 
@@ -735,11 +740,43 @@ $(function () {
                 column.isVisible = isVisible;
 
                 if (isVisible) {
-                    column.th.show();
-                    column.filterCell.show();
+                    var hiddenColumnIndex = self.hiddenColumns.findIndex(col => col.header === columnHeader);
+                    var hiddenColumn = self.hiddenColumns[hiddenColumnIndex];
+
+                    if (hiddenColumnIndex < 0) return;
+
+                    this.hiddenColumns.splice(hiddenColumnIndex, 1);
+
+                    setTimeout(function () {
+
+                        var index = column.index;
+                        console.log(index, self.tableHeadRow.children().length);
+                        if (index >= self.tableHeadRow.children().length) {
+                            self.tableHeadRow.append(hiddenColumn.th);
+                            if(hiddenColumn.filterCell)
+                                self.filterRow.append(hiddenColumn.filterCell);
+                        } else {
+                            self.tableHeadRow.children().eq(index).before(hiddenColumn.th);
+                            if(hiddenColumn.filterCell)
+                                self.filterRow.children().eq(index).before(hiddenColumn.filterCell);
+                        }
+
+                        self._rebuildTableBody();
+                    }, 1);
                 } else {
-                    column.th.hide();
-                    column.filterCell.hide();
+                    self.hiddenColumns.push({
+                        header: column.header,
+                        th: column.th,
+                        filterCell: column.filterCell
+                    });
+
+                    setTimeout(function () {
+                        column.th.detach();
+                        column.filterCell.detach();
+                    }, 1);
+
+                    //column.th.hide();
+                    //column.filterCell.hide();
                 }
 
                 $(".no-columns-visible").remove();
