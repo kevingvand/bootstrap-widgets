@@ -733,6 +733,50 @@ $(function () {
                 return column;
             },
 
+            _hideColumn(column) {
+                var self = this;
+
+                self.hiddenColumns.push({
+                    header: column.header,
+                    th: column.th,
+                    filterCell: column.filterCell
+                });
+
+                setTimeout(function () {
+                    column.th.detach();
+                    column.filterCell.detach();
+
+                    self._rebuildTableBody();
+                }, 1);
+            },
+
+            _showColumn: function (column) {
+                var self = this;
+
+                var hiddenColumnIndex = self.hiddenColumns.findIndex(col => col.header === column.header);
+                var hiddenColumn = self.hiddenColumns[hiddenColumnIndex];
+
+                if (hiddenColumnIndex < 0) return;
+
+                this.hiddenColumns.splice(hiddenColumnIndex, 1);
+
+                setTimeout(function () {
+
+                    var index = column.index;
+                    if (index >= self.tableHeadRow.children().length) {
+                        self.tableHeadRow.append(hiddenColumn.th);
+                        if(hiddenColumn.filterCell)
+                            self.filterRow.append(hiddenColumn.filterCell);
+                    } else {
+                        self.tableHeadRow.children().eq(index).before(hiddenColumn.th);
+                        if(hiddenColumn.filterCell)
+                            self.filterRow.children().eq(index).before(hiddenColumn.filterCell);
+                    }
+
+                    self._rebuildTableBody();
+                }, 1);
+            },
+
             _setColumnVisibility(columnHeader, isVisible) {
                 var self = this;
                 var column = this._getColumnByHeader(columnHeader);
@@ -740,43 +784,9 @@ $(function () {
                 column.isVisible = isVisible;
 
                 if (isVisible) {
-                    var hiddenColumnIndex = self.hiddenColumns.findIndex(col => col.header === columnHeader);
-                    var hiddenColumn = self.hiddenColumns[hiddenColumnIndex];
-
-                    if (hiddenColumnIndex < 0) return;
-
-                    this.hiddenColumns.splice(hiddenColumnIndex, 1);
-
-                    setTimeout(function () {
-
-                        var index = column.index;
-                        console.log(index, self.tableHeadRow.children().length);
-                        if (index >= self.tableHeadRow.children().length) {
-                            self.tableHeadRow.append(hiddenColumn.th);
-                            if(hiddenColumn.filterCell)
-                                self.filterRow.append(hiddenColumn.filterCell);
-                        } else {
-                            self.tableHeadRow.children().eq(index).before(hiddenColumn.th);
-                            if(hiddenColumn.filterCell)
-                                self.filterRow.children().eq(index).before(hiddenColumn.filterCell);
-                        }
-
-                        self._rebuildTableBody();
-                    }, 1);
+                    self._showColumn(column);
                 } else {
-                    self.hiddenColumns.push({
-                        header: column.header,
-                        th: column.th,
-                        filterCell: column.filterCell
-                    });
-
-                    setTimeout(function () {
-                        column.th.detach();
-                        column.filterCell.detach();
-                    }, 1);
-
-                    //column.th.hide();
-                    //column.filterCell.hide();
+                    self._hideColumn(column);
                 }
 
                 $(".no-columns-visible").remove();
@@ -786,8 +796,7 @@ $(function () {
                 if (!this.options.columns.filter(col => !col.header.startsWith("_")).some(col => col.isVisible)) {
 
                     this.options.columns.filter(col => col.header.startsWith("_")).forEach(col => {
-                        col.th.hide();
-                        col.filterCell.hide();
+                        self._hideColumn(col);
                     });
 
                     var $th = $("<th>")
@@ -798,8 +807,7 @@ $(function () {
                     if (this.paginationWrapper) this.paginationWrapper.removeClass("d-flex").hide();
                 } else {
                     this.options.columns.filter(col => col.header.startsWith("_")).forEach(col => {
-                        col.th.show();
-                        col.filterCell.show();
+                        self._showColumn(col);
                     });
                 }
 
