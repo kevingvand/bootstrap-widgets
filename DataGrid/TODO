@@ -25,7 +25,7 @@
     + column visibility, hide actions if no columns
     + column order - account for action cell
     + Automatically set width to fill number of icons (limit to 3)
-- row right click context menu
++ row right click context menu
 - style search "x" for clearing input
 - hide function for filter row
 - full screen mode (somehow?)

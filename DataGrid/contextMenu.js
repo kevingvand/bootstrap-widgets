@@ -83,6 +83,12 @@ $(function () {
                         .text(action.text)
                         .appendTo($contextMenuItemWrapper);
 
+                    if(action.dataAttributes) {
+                        Object.keys(action.dataAttributes).forEach((attribute) => {
+                            $menuItem.attr(`data-${toKebabCase(attribute)}`, action.dataAttributes[attribute]);
+                        })
+                    }
+
                     if (action.actions) {
 
                         var $menuItemGroup = $("<div>")

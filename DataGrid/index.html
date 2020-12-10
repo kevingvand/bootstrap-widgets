@@ -132,7 +132,7 @@
 
             var genRows = [];
             for (var i = 0; i < 1000; i++) {
-                var row = { cells: [{ text: i }, { text: i % 2 == 0 ? "Even" : "Odd" }, { text: Math.random().toString(36).substr(7, 1) }], actions: [{ name: "open", dataAttributes: {href: `open/${i}`} }, { name: "close", disabled: (i % 2 == 0) }] };
+                var row = { cells: [{ text: i }, { text: i % 2 == 0 ? "Even" : "Odd" }, { text: Math.random().toString(36).substr(7, 1) }], actions: [{ name: "open", dataAttributes: {href: `open/${i}`} }, { name: "close", arguments: [i], disabled: (i % 2 == 0) }] };
                 genRows.push(row)
             }
 

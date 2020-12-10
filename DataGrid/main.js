@@ -368,6 +368,8 @@ $(function () {
                     row.element.prepend($actionCell);
                 else row.element.find(`td:nth-child(${actionsColumnIndex})`).after($actionCell)
 
+                self._setRowContextMenu(row);
+
                 this.options.actions.forEach(action => {
 
                     var rowAction = row.actions.find(rowAction => rowAction.name == action.name);
@@ -575,6 +577,44 @@ $(function () {
                 }
             },
 
+            _setRowContextMenu: function (row) {
+                var self = this;
+
+                if (this.options.actions.length) {
+
+                    row.element.contextMenu({
+                        actions: this.options.actions.filter(action => {
+                            var rowAction = row.actions.find(rowAction => rowAction.name === action.name);
+                            if (rowAction && rowAction.disabled) return false;
+                            return true;
+                        }).map(action => {
+                            var rowAction = row.actions.find(rowAction => rowAction.name === action.name);
+                            var dataAttributes = {};
+
+                            if (action.dataAttributes) {
+                                dataAttributes = Object.assign(dataAttributes, action.dataAttributes);
+                            }
+        
+                            if (rowAction.dataAttributes) {
+                                dataAttributes = Object.assign(dataAttributes, rowAction.dataAttributes);
+                            }
+
+                            return {
+                                text: action.name,
+                                dataAttributes: dataAttributes,
+                                action: function () {
+                                    if(!action.action) return;
+                                    var arguments = [];
+                                    if (action.arguments) arguments = arguments.concat(action.arguments);
+                                    if (rowAction && rowAction.arguments) arguments = arguments.concat(rowAction.arguments);
+                                    action.action(...arguments);
+                                }
+                            };
+                        })
+                    });
+                }
+            },
+
             _setColumnResize() {
                 var self = this;
                 var columns = this.options.columns;
@@ -601,7 +641,7 @@ $(function () {
                                     var newNeighbourWidth = $neighbour.outerWidth() - widthDifference;
 
                                     var neighbourColumn = columns.find(col => col.index === index + 1);
-                                    
+
                                     if (widthDifference && (newNeighbourWidth >= neighbourColumn.minWidth)) {
                                         $neighbour.width(neighbourColumn.calculated.width = $neighbour.width() - widthDifference);
                                         column.calculated.width = ui.size.width;
