@@ -587,6 +587,18 @@ $(function () {
                                 self._saveTableState();
                             }
                         });
+
+                        var savedTableState = localStorage.getItem(`${this.id}-state`);
+                        if(savedTableState !== null) {
+                            actions.push({
+                                text: "Clear Table Settings",
+                                action: function () {
+                                    localStorage.removeItem(`${self.id}-state`);
+                                    window.location.reload(); //TODO: replace with reload in ValiBridge.
+                                }
+                            })
+                        }
+
                     }
 
                     this.tableHeadRow.contextMenu({
