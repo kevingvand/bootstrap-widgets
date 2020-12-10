@@ -625,7 +625,12 @@ $(function () {
                         return false;
                     })
                     .dblclick(function () {
-                        console.log("hi");
+
+                        var header = $(this).parents("th").data("header");
+                        var column = self._getColumnByHeader(header);
+                        var previousWidth = column.th.width();
+                        column.th.width(column.minWidth);
+                        column.th.next().width(column.th.next().width() + previousWidth - column.minWidth);
                         return false;
                     });
 

@@ -14,7 +14,7 @@
     + sort number if column is type number
 + reorder columns
     + Re-init resizing of columns on column reorder
-    - Resize neighbour to min-width on double click resize handle
+    + Resize neighbour to min-width on double click resize handle
 + show/hide columns
 + pagination
     + load specific item from url
