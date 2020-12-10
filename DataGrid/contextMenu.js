@@ -15,9 +15,9 @@ $(function () {
                 var self = this;
 
                 this.target.on("contextmenu", function (event) {
-                    if (event.ctrlKey) return;
-
                     $(".context-menu").remove();
+
+                    if (event.ctrlKey) return;
 
                     self._buildContextMenu(event);
 

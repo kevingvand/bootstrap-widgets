@@ -60,6 +60,16 @@ th.placeholder, td.placeholder {
     cursor: grab;
 }
 
+.table td {
+    vertical-align: middle;
+}
+
+.datagrid-wrapper .ui-resizable-handle {
+    width: 16px;
+    right: -8px;
+    z-index: 1000;
+}
+
 .datagrid-header-sticky {
     position: sticky;
     top: 0;
@@ -74,14 +84,30 @@ th.placeholder, td.placeholder {
     padding: .1rem .2rem;
 }
 
-.datagrid-action-cell {
+.table .datagrid-action-cell {
     text-align: right;
     width: auto !important;
+    padding: 0;
 }
 
 .datagrid-action-cell .btn {
     width: 45px;
     margin: 2px;
+}
+
+.datagrid-action-one-button {
+    width: 49px;
+    min-width: 49px;
+}
+
+.datagrid-action-two-buttons {
+    width: 98px;
+    min-width: 98px;
+}
+
+.datagrid-action-many-buttons {
+    width: 147px;
+    min-width: 147px;
 }
 
 /* CONTEXT MENU */

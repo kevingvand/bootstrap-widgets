@@ -60,7 +60,7 @@ $(function () {
                             setTimeout(function () {
                                 $this.animate({
                                     backgroundColor: ""
-                                }, 500, function() {
+                                }, 500, function () {
                                     $this.css("background-color", "");
                                 });
                             }, 1000)
@@ -90,10 +90,12 @@ $(function () {
                 this.options.columns.forEach((column, index, columns) => {
 
                     var $th = $("<th>")
+                        .attr("data-header", column.header)
                         .appendTo(self.tableHeadRow);
 
                     column.th = $th;
                     column.isVisible = true;
+                    column.index = index;
 
                     var $thWrapper = $("<div>")
                         .addClass("w-100 m-0 p-0 d-flex justify-content-between")
@@ -114,7 +116,7 @@ $(function () {
 
                     if (column.width) {
                         $th.css("width", column.width);
-                        column.minWidth = column.width;
+                        column.minWidth = parseInt(column.width);
                     }
 
                     if (!column.minWidth)
@@ -231,43 +233,41 @@ $(function () {
                             helperCells: null,
                             tolerance: "pointer",
                             axis: "x"
+                        }, {
+                            update: function () {
+                                self.tableHeadRow.find("th").each(function (index) {
+                                    var column = self._getColumnByHeader($(this).data("header"));
+                                    column.index = index;
+                                });
+
+                                self._setColumnResize();
+                            }
                         }).disableSelection();
-                    }
-
-                    if (self.options.allowResize && column.allowResize !== false) {
-                        if (columns.length - 1 != index) {
-                            $th.resizable({
-                                handles: "e",
-                                minWidth: column.minWidth,
-                                resize: function (event, ui) {
-                                    if (!column.calculated.width) column.calculated.width = ui.originalSize.width;
-
-                                    var widthDifference = ui.size.width - column.calculated.width;
-
-                                    var newNeighbourWidth = $(this).next().width() - widthDifference
-                                    if (widthDifference && (newNeighbourWidth >= columns[index + 1].minWidth)) {
-                                        $(this).next().width(columns[index + 1].calculated.width = $(this).next().width() - widthDifference);
-                                    } else {
-                                        $(this).width(column.calculated.width);
-                                    }
-
-                                    column.calculated.width = ui.size.width;
-                                },
-                                stop: function (event, ui) {
-                                    column.calculated.width = $th.width();
-                                    columns[index + 1].calculated.width = $th.next().width();
-                                }
-                            });
-                        }
                     }
                 });
 
-                if (this.options.actions.length) {
+                var actionLength = this.options.actions.length;
+
+                if (actionLength) {
 
                     var column = { header: "_actions", isVisible: true };
                     column.th = $("<th>")
+                        .attr("data-header", column.header)
                         .addClass("datagrid-action-header text-right")
                         .appendTo(this.tableHeadRow);
+
+                    column.index = self.options.columns.length;
+                    column.calculated = {}
+
+                    if (actionLength === 1) {
+                        column.th.addClass("datagrid-action-one-button");
+                    } else if (actionLength === 2) {
+                        column.th.addClass("datagrid-action-two-buttons");
+                    } else {
+                        column.th.addClass("datagrid-action-many-buttons");
+                    }
+
+                    column.minWidth = parseInt(column.th.css("min-width"));
 
                     if (this.options.allowColumnReorder) {
                         $("<span>")
@@ -293,6 +293,7 @@ $(function () {
                 }
 
                 self._setHeaderContextMenu();
+                self._setColumnResize();
             },
 
             _buildTableBody: function () {
@@ -574,6 +575,62 @@ $(function () {
                 }
             },
 
+            _setColumnResize() {
+                var self = this;
+                var columns = this.options.columns;
+
+                columns.forEach((column => {
+                    if (column.th.hasClass("ui-resizable")) {
+                        column.th.resizable("destroy");
+                    }
+
+                    var index = column.index;
+
+                    if (self.options.allowResize && column.allowResize !== false) {
+                        if (columns.length - 1 != index) {
+                            column.th.resizable({
+                                handles: "e",
+                                minWidth: column.minWidth,
+                                resize: function (event, ui) {
+                                    if (!column.calculated.width) column.calculated.width = ui.originalSize.width;
+                                    var widthDifference = ui.size.width - column.calculated.width;
+
+                                    var $neighbour = $(this).next();
+
+
+                                    var newNeighbourWidth = $neighbour.outerWidth() - widthDifference;
+
+                                    var neighbourColumn = columns.find(col => col.index === index + 1);
+                                    
+                                    if (widthDifference && (newNeighbourWidth >= neighbourColumn.minWidth)) {
+                                        $neighbour.width(neighbourColumn.calculated.width = $neighbour.width() - widthDifference);
+                                        column.calculated.width = ui.size.width;
+                                    } else {
+                                        $(this).width(column.calculated.width);
+                                    }
+                                },
+                                stop: function (event, ui) {
+                                    column.calculated.width = column.th.width();
+                                    columns.find(col => col.index === index + 1).calculated.width = column.th.next().width();
+                                }
+                            });
+                        }
+
+                        column.th.css("z-index", 1000 - (10 * index));
+                    }
+                }));
+
+                self.table.find(".ui-resizable-handle")
+                    .click(function () {
+                        return false;
+                    })
+                    .dblclick(function () {
+                        console.log("hi");
+                        return false;
+                    });
+
+            },
+
             _getColumnFilters() {
                 var self = this;
                 this.columnFilters = {};
@@ -608,7 +665,7 @@ $(function () {
                 var columnIndex = this.options.columns.findIndex(col => col.header === columnHeader);
                 var column = this.options.columns[columnIndex];
 
-                column.index = columnIndex;
+                column.collectionIndex = columnIndex;
                 return column;
             },
 
@@ -705,8 +762,8 @@ $(function () {
 
                 this.options.rows.sort((a, b) => {
 
-                    var aContent = a.cells[column.index].text;
-                    var bContent = b.cells[column.index].text;
+                    var aContent = a.cells[column.collectionIndex].text;
+                    var bContent = b.cells[column.collectionIndex].text;
 
                     if (typeof aContent === "string") aContent = aContent.toLowerCase();
                     if (typeof bContent === "string") bContent = bContent.toLowerCase();
@@ -724,7 +781,7 @@ $(function () {
                 if (!column || !column.allowSearch) return;
 
                 this.options.rows.forEach(row => {
-                    var cell = row.cells[column.index];
+                    var cell = row.cells[column.collectionIndex];
                     cell.hidden = (cell.text.toString() && !queryText(cell.text.toString(), searchTerm));
                 });
 
@@ -739,7 +796,7 @@ $(function () {
                 var filters = this.columnFilters[columnHeader].filter(filter => filter.isActive).map(filter => filter.value);
 
                 this.options.rows.forEach(row => {
-                    var cell = row.cells[column.index];
+                    var cell = row.cells[column.collectionIndex];
                     cell.hidden = filters.length && !filters.includes(cell.text);
                 });
 

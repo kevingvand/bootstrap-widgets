@@ -13,16 +13,18 @@
 + Sort asc/desc
     + sort number if column is type number
 + reorder columns
-    - Re-init resizing of columns on column reorder
+    + Re-init resizing of columns on column reorder
+    - Resize neighbour to min-width on double click resize handle
 + show/hide columns
 + pagination
     + load specific item from url
-    - scroll to specified item?
+    + scroll to specified item?
 + row click function
-- action icons (at end of table)
++ action icons (at end of table)
     + disable / enable actions on row level
     + column visibility, hide actions if no columns
     + column order - account for action cell
+    + Automatically set width to fill number of icons (limit to 3)
 - row right click context menu
 - style search "x" for clearing input
 - hide function for filter row
