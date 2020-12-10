@@ -15,6 +15,7 @@
 + reorder columns
     + Re-init resizing of columns on column reorder
     + Resize neighbour to min-width on double click resize handle
+    - Check reorder if not all columns are visible
 + show/hide columns
 + pagination
     + load specific item from url
@@ -26,8 +27,8 @@
     + column order - account for action cell
     + Automatically set width to fill number of icons (limit to 3)
 + row right click context menu
+- option for saving specific settings in session (see ValiBridge collapsible card)
 - style search "x" for clearing input
 - hide function for filter row
 - full screen mode (somehow?)
-- option for saving specific settings in session (see ValiBridge collapsible card)
 - Speed improvements for > 100.000 rows

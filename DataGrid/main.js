@@ -25,6 +25,7 @@ $(function () {
                 this.id = toCamelCase(this.element.attr("id"));
 
                 this._build();
+                this._loadTableState();
             },
 
             _build: function () {
@@ -418,7 +419,6 @@ $(function () {
 
                     var defaultPageSize = self.options.pageSizes[0];
 
-                    //TODO: load options from url
                     this.pagination = {
                         pageSize: defaultPageSize,
                         currentPage: 0,
@@ -454,10 +454,13 @@ $(function () {
 
                     this.options.pageSizes.forEach(size => {
                         var text = size === -1 ? "All" : size;
-                        $("<option>")
+                        var $option = $("<option>")
                             .val(size)
                             .text(text)
                             .appendTo($pageSizeSelect);
+
+                        if (size == defaultPageSize)
+                            $option.attr("selected", true);
                     });
 
                     this.paginationNavigation = $("<div>")
@@ -556,23 +559,34 @@ $(function () {
 
                 if (this.options.allowColumnHiding) {
 
-                    this.tableHeadRow.contextMenu({
-                        actions: [
-                            {
-                                text: "Column Visibility",
-                                actions: self.options.columns.filter(column => !column.header.startsWith("_")).map(column => {
-                                    return {
-                                        text: column.header,
-                                        type: "switch",
-                                        isChecked: column.isVisible,
-                                        onToggle: function (isChecked) {
-                                            self._setColumnVisibility(column.header, isChecked);
-                                        }
-                                    };
-                                })
+                    var actions = [
+                        {
+                            text: "Column Visibility",
+                            actions: self.options.columns.filter(column => !column.header.startsWith("_")).map(column => {
+                                return {
+                                    text: column.header,
+                                    type: "switch",
+                                    isChecked: column.isVisible,
+                                    onToggle: function (isChecked) {
+                                        self._setColumnVisibility(column.header, isChecked);
+                                    }
+                                };
+                            })
 
+                        },
+                    ];
+
+                    if (this.id) {
+                        actions.push({
+                            text: "Save Table Settings",
+                            action: function () {
+                                self._saveTableState();
                             }
-                        ]
+                        });
+                    }
+
+                    this.tableHeadRow.contextMenu({
+                        actions: actions
                     });
                 }
             },
@@ -594,7 +608,7 @@ $(function () {
                             if (action.dataAttributes) {
                                 dataAttributes = Object.assign(dataAttributes, action.dataAttributes);
                             }
-        
+
                             if (rowAction.dataAttributes) {
                                 dataAttributes = Object.assign(dataAttributes, rowAction.dataAttributes);
                             }
@@ -603,7 +617,7 @@ $(function () {
                                 text: action.name,
                                 dataAttributes: dataAttributes,
                                 action: function () {
-                                    if(!action.action) return;
+                                    if (!action.action) return;
                                     var arguments = [];
                                     if (action.arguments) arguments = arguments.concat(action.arguments);
                                     if (rowAction && rowAction.arguments) arguments = arguments.concat(rowAction.arguments);
@@ -846,6 +860,94 @@ $(function () {
                 });
 
                 this._rebuildTableBody();
+            },
+
+            _saveTableState() {
+                var self = this;
+
+                var columnStates = this.options.columns.map(column => {
+
+                    var columnFilter = self.columnFilters[column.header];
+
+                    if (columnFilter)
+                        var activeFilters = self.columnFilters[column.header].filter(columnFilter => columnFilter.isActive);
+
+                    return {
+                        header: column.header,
+                        index: column.index,
+                        width: column.th.width(),
+                        isVisible: column.isVisible,
+                        searchTerm: column.filterCell.find(".datagrid-search-input").val(),
+                        sortDirection: column.th.data("sortDirection"),
+                        activeFilters: activeFilters,
+                    };
+                });
+
+                var tableState = {
+                    columns: columnStates,
+                    pageSize: self.pagination.pageSize,
+                }
+
+                sessionStorage.setItem(`${this.id}-state`, JSON.stringify(tableState));
+            },
+
+            _loadTableState() {
+                var self = this;
+                var jsonState = sessionStorage.getItem(`${this.id}-state`);
+                if (!jsonState) return;
+
+                var state = JSON.parse(jsonState);
+                if (!state) return;
+
+                this.options.columns.forEach((column, index) => {
+                    var savedColumnState = state.columns.find(col => col.header === column.header);
+
+                    self._setColumnVisibility(column.header, savedColumnState.isVisible);
+
+                    column.th.width(savedColumnState.width);
+
+                    column.filterCell.find(".datagrid-search-input").val(savedColumnState.searchTerm);
+
+                    self._searchColumn(column.header, savedColumnState.searchTerm);
+
+                    if (self.columnFilters[column.header] && savedColumnState && savedColumnState.activeFilters.length > 0) {
+                        savedColumnState.activeFilters.forEach((activeFilter, index) => {
+                            var columnFilter = self.columnFilters[column.header].find(columnFilter => columnFilter.value === activeFilter.value);
+
+                            columnFilter.isActive = true;
+                            columnFilter.switch.find(".custom-control-input").prop("checked", true);
+
+                            if (index === savedColumnState.activeFilters.length - 1)
+                                self._filterColumn(column.header);
+                        });
+                    }
+
+                    if (savedColumnState.sortDirection) {
+                        column.th.data("sortDirection", savedColumnState.sortDirection);
+                        self._sortColumn(column.header, savedColumnState.sortDirection);
+                        self._setSortIcon(column.th.find(".datagrid-sort"), savedColumnState.sortDirection);
+                    }
+
+                    column.index = savedColumnState.index;
+
+                    if (index === self.options.columns.length - 1) {
+
+                        var sortedColumns = [...this.options.columns];
+
+                        sortedColumns.sort((a, b) => {
+                            return (a.index > b.index) ? 1 : ((b.index > a.index) ? -1 : 0);
+                        }).forEach(((column, index) => {
+                            column.th.appendTo(self.tableHeadRow);
+                            if (self.filterRow)
+                                column.filterCell.appendTo(self.filterRow);
+
+                            if (index === self.options.columns.length - 1) {
+                                self._rebuildTableBody();
+                                self._setColumnResize();
+                            }
+                        }));
+                    }
+                });
             },
 
             _destroy: function () {
