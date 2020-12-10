@@ -888,12 +888,12 @@ $(function () {
                     pageSize: self.pagination.pageSize,
                 }
 
-                sessionStorage.setItem(`${this.id}-state`, JSON.stringify(tableState));
+                localStorage.setItem(`${this.id}-state`, JSON.stringify(tableState));
             },
 
             _loadTableState() {
                 var self = this;
-                var jsonState = sessionStorage.getItem(`${this.id}-state`);
+                var jsonState = localStorage.getItem(`${this.id}-state`);
                 if (!jsonState) return;
 
                 var state = JSON.parse(jsonState);
