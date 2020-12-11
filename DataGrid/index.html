@@ -16,7 +16,29 @@
 <body>
 
     <div class="m-5">
-        <table id="main-table" class="table"></table>
+        <!-- <table id="main-table" class="table"></table> -->
+        <table id="main-table" class="table" data-allow-resize data-allow-column-reorder data-allow-column-hiding data-allow-save-state>
+            <thead>
+                <tr>
+                    <th data-allow-sort data-allow-search data-allow-filter>A</th>
+                    <th>B</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>2</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>4</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>6</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <script src="../jquery-3.4.1.js"></script>
@@ -136,7 +158,9 @@
                 genRows.push(row)
             }
 
-            $(".table").datagrid({
+            $(".table").datagrid();
+
+            /*$(".table").datagrid({
                 stickyHeader: true,
                 allowResize: true,
                 allowColumnReorder: true,
@@ -204,8 +228,8 @@
                     { cells: [{ text: "34" }, { text: "def" }, { text: "A" }] },
                     { cells: [{ text: "35" }, { text: "TestC" }, { text: "B" }] },
                     { cells: [{ text: "36" }, { text: "TestD" }, { text: "B" }] },
-                ]*/
-            });
+                ]
+            });*/
 
             // Handle nested dropdown
             $(".dropdown-item").click(function (e) {

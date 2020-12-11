@@ -7,6 +7,7 @@ $(function () {
                 allowResize: true,
                 allowColumnReorder: true,
                 allowColumnHiding: true,
+                allowSaveState: true,
                 enablePagination: false,
                 scrollToItem: true,
                 stickyHeader: false,
@@ -24,8 +25,59 @@ $(function () {
                 this.table = this.element;
                 this.id = toCamelCase(this.element.attr("id"));
 
+                this._extractTableData();
                 this._build();
                 this._loadTableState();
+            },
+
+            _extractTableData: function () {
+                var self = this;
+
+                self.options.allowResize = self.table.is("[data-allow-resize]");
+                self.options.allowColumnReorder = self.table.is("[data-allow-column-reorder]");
+                self.options.allowColumnHiding = self.table.is("[data-allow-column-hiding]");
+                self.options.allowSaveState = self.table.is("[data-allow-save-state]");
+                self.options.enablePagination = self.table.is("[data-enable-pagination]");
+                self.options.scrollToItem = self.table.is("[data-scroll-to-item]");
+                self.options.stickyHeader = self.table.is("[data-sticky-header]");
+
+                var tableHeadRow = this.table.find("thead tr:first");
+                if (tableHeadRow.length) {
+                    tableHeadRow.find("th").each(function () {
+
+                        var column = {
+                            header: $(this).text(),
+                            allowSort: $(this).is("[data-allow-sort]"),
+                            allowFilter: $(this).is("[data-allow-filter]"),
+                            allowSearch: $(this).is("[data-allow-search]"),
+                        }
+
+                        if ($(this).is("[data-width]"))
+                            column.width = parseInt($(this).data("width"));
+
+                        if ($(this).is("[data-max-filter-Count]"))
+                            column.maxFilterCount = parseInt($(this).data("maxFilterCount"));
+
+                        self.options.columns.push(column);
+                    });
+                }
+
+                var tableBody = this.table.find("tbody");
+                if (tableBody.length) {
+                    tableBody.find("tr").each(function () {
+                        var row = {
+                            cells: []
+                        };
+
+                        $(this).find("td").each(function () {
+                            row.cells.push({ text: $(this).text() });
+                        });
+
+                        self.options.rows.push(row);
+                    });
+                }
+
+                this.table.empty();
             },
 
             _build: function () {
@@ -561,9 +613,11 @@ $(function () {
             _setHeaderContextMenu: function () {
                 var self = this;
 
+                var actions = [];
+
                 if (this.options.allowColumnHiding) {
 
-                    var actions = [
+                    actions.push(
                         {
                             text: "Column Visibility",
                             actions: self.options.columns.filter(column => !column.header.startsWith("_")).map(column => {
@@ -578,33 +632,37 @@ $(function () {
                             })
 
                         },
-                    ];
+                    );
+                }
 
-                    if (this.id) {
-                        actions.push({
-                            text: "Save Table Settings",
-                            action: function () {
-                                self._saveTableState();
-                            }
-                        });
-
-                        var savedTableState = localStorage.getItem(`${this.id}-state`);
-                        if(savedTableState !== null) {
-                            actions.push({
-                                text: "Clear Table Settings",
-                                action: function () {
-                                    localStorage.removeItem(`${self.id}-state`);
-                                    window.location.reload(); //TODO: replace with reload in ValiBridge.
-                                }
-                            })
+                if (this.options.allowSaveState && this.id) {
+                    actions.push({
+                        text: "Save Table Settings",
+                        action: function () {
+                            self._saveTableState();
                         }
+                    });
 
+                    var savedTableState = localStorage.getItem(`${this.id}-state`);
+                    if (savedTableState !== null) {
+                        actions.push({
+                            text: "Clear Table Settings",
+                            action: function () {
+                                localStorage.removeItem(`${self.id}-state`);
+                                window.location.reload(); //TODO: replace with reload in ValiBridge.
+                            }
+                        })
                     }
+
+                }
+
+                if (actions.length) {
 
                     this.tableHeadRow.contextMenu({
                         actions: actions
                     });
                 }
+
             },
 
             _setRowContextMenu: function (row) {
@@ -756,7 +814,8 @@ $(function () {
 
                 setTimeout(function () {
                     column.th.detach();
-                    column.filterCell.detach();
+                    if (column.filterCell)
+                        column.filterCell.detach();
 
                     self._rebuildTableBody();
                 }, 1);
@@ -777,11 +836,11 @@ $(function () {
                     var index = column.index;
                     if (index >= self.tableHeadRow.children().length) {
                         self.tableHeadRow.append(hiddenColumn.th);
-                        if(hiddenColumn.filterCell)
+                        if (hiddenColumn.filterCell)
                             self.filterRow.append(hiddenColumn.filterCell);
                     } else {
                         self.tableHeadRow.children().eq(index).before(hiddenColumn.th);
-                        if(hiddenColumn.filterCell)
+                        if (hiddenColumn.filterCell)
                             self.filterRow.children().eq(index).before(hiddenColumn.filterCell);
                     }
 
@@ -924,10 +983,12 @@ $(function () {
 
                 var columnStates = this.options.columns.map(column => {
 
-                    var columnFilter = self.columnFilters[column.header];
+                    if (column.allowFilter) {
+                        var columnFilter = self.columnFilters[column.header];
 
-                    if (columnFilter)
-                        var activeFilters = self.columnFilters[column.header].filter(columnFilter => columnFilter.isActive);
+                        if (columnFilter)
+                            var activeFilters = self.columnFilters[column.header].filter(columnFilter => columnFilter.isActive);
+                    }
 
                     return {
                         header: column.header,
@@ -963,11 +1024,13 @@ $(function () {
 
                     column.th.width(savedColumnState.width);
 
-                    column.filterCell.find(".datagrid-search-input").val(savedColumnState.searchTerm);
+                    if (column.allowSearch) {
+                        column.filterCell.find(".datagrid-search-input").val(savedColumnState.searchTerm);
 
-                    self._searchColumn(column.header, savedColumnState.searchTerm);
+                        self._searchColumn(column.header, savedColumnState.searchTerm);
+                    }
 
-                    if (self.columnFilters[column.header] && savedColumnState && savedColumnState.activeFilters.length > 0) {
+                    if (column.allowFilter && self.columnFilters[column.header] && savedColumnState && savedColumnState.activeFilters.length > 0) {
                         savedColumnState.activeFilters.forEach((activeFilter, index) => {
                             var columnFilter = self.columnFilters[column.header].find(columnFilter => columnFilter.value === activeFilter.value);
 
