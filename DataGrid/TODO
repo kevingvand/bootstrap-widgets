@@ -1,6 +1,4 @@
-- Check for existing table data
-- specify table source
-    - use a mapper to map any api to a table format
++ Check for existing table data
 + Possibility to specify width of a column
 + Filter column
     + search
@@ -28,8 +26,11 @@
     + Automatically set width to fill number of icons (limit to 3)
 + row right click context menu
 + option for saving specific settings in session (see ValiBridge collapsible card)
++ specify table source
+    + use a mapper to map any api to a table format
 - style search "x" for clearing input
 - hide function for filter row
 - full screen mode (somehow?)
 - Speed improvements for > 100.000 rows
 - Proper destroy method
+- Add phone compatibility

@@ -4,13 +4,15 @@ $(function () {
             options: {
                 columns: [],
                 rows: [],
-                allowResize: true,
-                allowColumnReorder: true,
-                allowColumnHiding: true,
-                allowSaveState: true,
+                allowResize: false,
+                allowColumnReorder: false,
+                allowColumnHiding: false,
+                allowSaveState: false,
                 enablePagination: false,
-                scrollToItem: true,
+                scrollToItem: false,
                 stickyHeader: false,
+                dataSource: null,
+                finalize: null,
 
                 pageSizes: [10, 25, 50, -1],
 
@@ -21,25 +23,32 @@ $(function () {
             },
 
             _create: function () {
+                var self = this;
 
                 this.table = this.element;
                 this.id = toCamelCase(this.element.attr("id"));
 
                 this._extractTableData();
-                this._build();
-                this._loadTableState();
+                this._loadDataSource(function () {
+                    self._build();
+                    self._loadTableState();
+
+                    if(self.options.finalize) {
+                        self.options.finalize();
+                    }
+                });
             },
 
             _extractTableData: function () {
                 var self = this;
 
-                self.options.allowResize = self.table.is("[data-allow-resize]");
-                self.options.allowColumnReorder = self.table.is("[data-allow-column-reorder]");
-                self.options.allowColumnHiding = self.table.is("[data-allow-column-hiding]");
-                self.options.allowSaveState = self.table.is("[data-allow-save-state]");
-                self.options.enablePagination = self.table.is("[data-enable-pagination]");
-                self.options.scrollToItem = self.table.is("[data-scroll-to-item]");
-                self.options.stickyHeader = self.table.is("[data-sticky-header]");
+                self.options.allowResize = self.options.allowResize || self.table.is("[data-allow-resize]");
+                self.options.allowColumnReorder = self.options.allowColumnReorder || self.table.is("[data-allow-column-reorder]");
+                self.options.allowColumnHiding = self.options.allowColumnHiding || self.table.is("[data-allow-column-hiding]");
+                self.options.allowSaveState = self.options.allowSaveState || self.table.is("[data-allow-save-state]");
+                self.options.enablePagination = self.options.enablePagination || self.table.is("[data-enable-pagination]");
+                self.options.scrollToItem = self.options.scrollToItem || self.table.is("[data-scroll-to-item]");
+                self.options.stickyHeader = self.options.stickyHeader || self.table.is("[data-sticky-header]");
 
                 var tableHeadRow = this.table.find("thead tr:first");
                 if (tableHeadRow.length) {
@@ -392,9 +401,11 @@ $(function () {
                         if (!self.options.columns[columnIndex].isVisible) continue;
 
                         var cell = row.cells[columnIndex];
-                        cell.element = $("<td>")
-                            .text(cell.text)
-                            .appendTo(row.element);
+                        if (cell) {
+                            cell.element = $("<td>")
+                                .text(cell ? cell.text : "")
+                                .appendTo(row.element);
+                        }
                     }
 
                     if (this.options.actions.length) {
@@ -429,11 +440,12 @@ $(function () {
 
                 this.options.actions.forEach(action => {
 
-                    var rowAction = row.actions.find(rowAction => rowAction.name == action.name);
+                    if(row.actions)
+                        var rowAction = row.actions.find(rowAction => rowAction.name == action.name);
 
                     $actionButton = $("<button>")
                         .addClass("btn btn-primary")
-                        .prop("disabled", action.disabled || rowAction.disabled)
+                        .prop("disabled", action.disabled || (rowAction && rowAction.disabled))
                         .append($("<i>")
                             .addClass(`fas fa-${action.icon}`))
                         .appendTo($actionCell);
@@ -441,7 +453,7 @@ $(function () {
                     if (action.action) {
                         $actionButton.click(function () {
                             var arguments = [];
-                            if (rowAction.arguments)
+                            if (rowAction && rowAction.arguments)
                                 arguments = [...rowAction.arguments];
 
                             action.action(...arguments);
@@ -454,7 +466,7 @@ $(function () {
                         });
                     }
 
-                    if (rowAction.dataAttributes) {
+                    if (rowAction && rowAction.dataAttributes) {
                         Object.keys(rowAction.dataAttributes).forEach(attribute => {
                             $actionButton.attr(`data-${toKebabCase(attribute)}`, rowAction.dataAttributes[attribute]);
                         });
@@ -672,18 +684,21 @@ $(function () {
 
                     row.element.contextMenu({
                         actions: this.options.actions.filter(action => {
+                            if(!row.actions) return true;
                             var rowAction = row.actions.find(rowAction => rowAction.name === action.name);
                             if (rowAction && rowAction.disabled) return false;
                             return true;
                         }).map(action => {
-                            var rowAction = row.actions.find(rowAction => rowAction.name === action.name);
+                            if(row.actions)
+                                var rowAction = row.actions.find(rowAction => rowAction.name === action.name);
+
                             var dataAttributes = {};
 
                             if (action.dataAttributes) {
                                 dataAttributes = Object.assign(dataAttributes, action.dataAttributes);
                             }
 
-                            if (rowAction.dataAttributes) {
+                            if (rowAction && rowAction.dataAttributes) {
                                 dataAttributes = Object.assign(dataAttributes, rowAction.dataAttributes);
                             }
 
@@ -797,6 +812,8 @@ $(function () {
 
             _getColumnByHeader(columnHeader) {
                 var columnIndex = this.options.columns.findIndex(col => col.header === columnHeader);
+                if (columnIndex === -1) return;
+
                 var column = this.options.columns[columnIndex];
 
                 column.collectionIndex = columnIndex;
@@ -1067,6 +1084,43 @@ $(function () {
                             }
                         }));
                     }
+                });
+            },
+
+            _loadDataSource: function (callback) {
+                if (!this.options.dataSource) {
+                    callback();
+                    return;
+                }
+
+                var self = this;
+
+                $.get(self.options.dataSource, function (data) {
+                    data.forEach((obj, index) => {
+
+                        var columns = [];
+
+                        var objectKeys = Object.keys(obj);
+                        objectKeys.forEach((key, keyIndex) => {
+
+                            column = self._getColumnByHeader(key);
+                            if (column) columns.push({ columnIndex: column.columnIndex, text: obj[key] });
+
+                            if (keyIndex === objectKeys.length - 1) {
+
+                                columns.sort((a, b) => {
+                                    return (a.columnIndex > b.columnIndex) ? 1 : ((b.columnIndex > a.columnIndex) ? -1 : 0);
+                                }).map(column => { return { text: column.text }; });
+
+                                var row = { cells: columns };
+                                self.options.rows.push(row);
+
+                                if (index === data.length - 1) {
+                                    callback();
+                                }
+                            }
+                        });
+                    })
                 });
             },
 

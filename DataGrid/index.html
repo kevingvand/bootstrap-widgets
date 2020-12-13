@@ -16,8 +16,8 @@
 <body>
 
     <div class="m-5">
-        <!-- <table id="main-table" class="table"></table> -->
-        <table id="main-table" class="table" data-allow-resize data-allow-column-reorder data-allow-column-hiding data-allow-save-state>
+        <table id="main-table" class="table"></table>
+        <!-- <table id="main-table" class="table" data-allow-resize data-allow-column-reorder data-allow-column-hiding data-allow-save-state>
             <thead>
                 <tr>
                     <th data-allow-sort data-allow-search data-allow-filter>A</th>
@@ -38,7 +38,7 @@
                     <td>6</td>
                 </tr>
             </tbody>
-        </table>
+        </table> -->
     </div>
 
     <script src="../jquery-3.4.1.js"></script>
@@ -154,11 +154,67 @@
 
             var genRows = [];
             for (var i = 0; i < 1000; i++) {
-                var row = { cells: [{ text: i }, { text: i % 2 == 0 ? "Even" : "Odd" }, { text: Math.random().toString(36).substr(7, 1) }], actions: [{ name: "open", dataAttributes: {href: `open/${i}`} }, { name: "close", arguments: [i], disabled: (i % 2 == 0) }] };
+                var row = { cells: [{ text: i }, { text: i % 2 == 0 ? "Even" : "Odd" }, { text: Math.random().toString(36).substr(7, 1) }], actions: [{ name: "open", dataAttributes: { href: `open/${i}` } }, { name: "close", arguments: [i], disabled: (i % 2 == 0) }] };
                 genRows.push(row)
             }
 
-            $(".table").datagrid();
+            $(".table").datagrid({
+                dataSource: "http://localhost:49706/api/Projects",
+                allowColumnReorder: true, //stuck
+                allowResize: true, //stuck
+                stickyHeader: true,
+                enablePagination: true,
+                actions: [
+                    {
+                        name: "open",
+                        icon: "folder-open",
+                        dataAttributes: {
+                            navigation: "",
+                            href: "open"
+                        }
+                    }
+                ],
+                columns: [
+                    { header: "Id", allowSort: true, allowSearch: true, allowFilter: true },
+                    { header: "Name", allowSort: true, allowFilter: true },
+                ],
+                finalize: function () {
+                    // Handle nested dropdown
+                    $(".dropdown-item").click(function (e) {
+
+                        var $anchor = $(this).children("a");
+                        var $parent = $(this).offsetParent(".dropdown-menu");
+                        var $menu = $anchor.next();
+
+                        if ($(this).hasClass("dropdown-item-switch")) {
+                            var $input = $(this).find(".custom-control-input");
+                            $input
+                                .prop("checked", !$input.prop("checked"))
+                                .change();
+
+                            e.stopPropagation();
+                            e.preventDefault();
+                            return;
+                        } else if ($menu.hasClass("show")) {
+                            $menu.removeClass("show");
+                            e.stopPropagation();
+                            e.preventDefault();
+                            return;
+                        } else {
+                            $parent.find(".dropdown-menu").removeClass("show");
+                        }
+
+                        if ($anchor.hasClass("dropdown-toggle")) {
+
+                            e.stopPropagation();
+                            e.preventDefault();
+                            $anchor.next().toggleClass("show");
+                        }
+                    });
+                }
+            });
+
+            // $(".table").datagrid();
 
             /*$(".table").datagrid({
                 stickyHeader: true,
@@ -243,6 +299,7 @@
                     $input
                         .prop("checked", !$input.prop("checked"))
                         .change();
+
                     e.stopPropagation();
                     e.preventDefault();
                     return;
