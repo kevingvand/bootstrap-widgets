@@ -19,7 +19,16 @@
   cursor: pointer;
 }
 
+.tree-view-list .tree-view-list-item-selected > div {
+  background-color: rgb(117, 163, 216);
+  color: white;
+}
+
 .tree-view-list .tree-view-sub-list {
 	margin: 0;
 	padding: 0;
+}
+
+.tree-view-list-selectable div:hover {
+  cursor: pointer;
 }
