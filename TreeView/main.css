@@ -1,0 +1,25 @@
+.tree-view-list .tree-view-list-item {
+	list-style: none;
+}
+
+.tree-view-list .tree-view-list-item div {
+	padding: 1px 10px;
+}
+
+.tree-view-list .tree-view-list-item div:hover {
+	background: lightgray;
+}
+
+.tree-view-list .tree-view-list-item span {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tree-view-list div.tree-view-list-item-parent:hover {
+  cursor: pointer;
+}
+
+.tree-view-list .tree-view-sub-list {
+	margin: 0;
+	padding: 0;
+}
