@@ -17,17 +17,17 @@
     <div class="container mt-5">
         <div class="row">
             <ul id="treeview">
-                <li>Item 1
+                <li data-id="1">Item 1
                     <ul>
-                        <li>Sub 1</li>
-                        <li>Sub 2
+                        <li data-id="1">Sub 1</li>
+                        <li data-id="2">Sub 2
                             <ul>
-                                <li data-collapsed="true">Sub Sub 1
+                                <li data-collapsed="true" data-id="3">Sub Sub 1
                                 <ul>
-                                    <li>Sub Sub Sub 1</li>
-                                    <li>Sub Sub Sub 2</li>
+                                    <li data-id="4">Sub Sub Sub 1</li>
+                                    <li data-id="5">Sub Sub Sub 2</li>
                                 </ul>>/li>
-                                <li>Sub Sub 2</li>
+                                <li data-id="6">Sub Sub 2</li>
                             </ul>
                         </li>
                     </ul>
@@ -45,7 +45,11 @@
 
     <script>
         $(function () {
-            $("#treeview").treeView();
+            $("#treeview").treeView({
+                onItemToggle: function($listItem, $subList, isCollapsed) {
+                    console.log($listItem.data("id"));
+                }
+            });
         });
     </script>
 </body>

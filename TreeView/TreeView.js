@@ -3,6 +3,7 @@ $(function () {
 		options: {
 			allowSelect: true,
 			leafSelectOnly: false,
+      onItemToggle: null
 		},
 
 		_create: function () {
@@ -72,7 +73,11 @@ $(function () {
 					$listItemWrapper
 						.addClass("tree-view-list-item-parent")
 						.click(function () {
+              var isCollapsed = $subList.is(":hidden");
 							self._toggleSubList($subList, $listItemStatusIcon);
+              if(self.options.onItemToggle) {
+                self.options.onItemToggle($listItem, $subList, !isCollapsed)
+              }
 						});
 
 					if ($listItem.data("collapsed"))
@@ -80,7 +85,7 @@ $(function () {
 				} else {
 					$listItemStatusIcon
 						.empty()
-						.append($("<i>").addClass("far fa-xs fa-angle-right mr-2"));
+						.append($("<i>").addClass("fas fa-xs fa-angle-right mr-2"));
 				}
 			});
 		},

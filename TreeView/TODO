@@ -1,3 +1,6 @@
-- Select item option: allow to click one item and function to retrieve the clicked item
-- item select on full width
-- data-collapsed option for items with sub-lists
++ Select item option: allow to click one item and function to retrieve the clicked item
++ item select on full width
++ data-collapsed option for items with sub-lists
++ onItemToggle event
+- load list placeholder
+- dynamically add subList
