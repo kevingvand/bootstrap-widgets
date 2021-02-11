@@ -3,7 +3,7 @@ $(function () {
 		options: {
 			allowSelect: true,
 			leafSelectOnly: false,
-      onItemToggle: null
+			onItemToggle: null,
 		},
 
 		_create: function () {
@@ -33,9 +33,12 @@ $(function () {
 				var itemText = $listItem.contents().get(0).nodeValue.trim();
 				var $subList = $listItem.children("ul");
 
-				var $listItemStatusIcon = $("<span>");
+				var $listItemStatusIcon = $("<span>").addClass(
+					"tree-view-list-item-status"
+				);
 
 				var $listItemWrapper = $("<div>")
+					.addClass("tree-view-list-item-wrapper")
 					.css("padding-left", 10 + 20 * level + "px")
 					.append($listItemStatusIcon)
 					.append($("<span>").text(itemText));
@@ -73,15 +76,11 @@ $(function () {
 					$listItemWrapper
 						.addClass("tree-view-list-item-parent")
 						.click(function () {
-              var isCollapsed = $subList.is(":hidden");
-							self._toggleSubList($subList, $listItemStatusIcon);
-              if(self.options.onItemToggle) {
-                self.options.onItemToggle($listItem, $subList, !isCollapsed)
-              }
+							self._toggleSubList($listItem, $subList, $listItemStatusIcon);
 						});
 
 					if ($listItem.data("collapsed"))
-						self._toggleSubList($subList, $listItemStatusIcon);
+						self._toggleSubList($listItem, $subList, $listItemStatusIcon);
 				} else {
 					$listItemStatusIcon
 						.empty()
@@ -90,7 +89,7 @@ $(function () {
 			});
 		},
 
-		_toggleSubList($subList, $listItemStatusIcon) {
+		_toggleSubList($listItem, $subList, $listItemStatusIcon) {
 			var collapsed = $subList.is(":hidden");
 
 			$listItemStatusIcon.empty().append(
@@ -100,11 +99,42 @@ $(function () {
 			);
 
 			$subList.toggle();
+
+      if (this.options.onItemToggle) {
+        this.options.onItemToggle($listItem, $subList, !collapsed);
+      }
 		},
 
-    selected: function() {
-      return this.selectedItem;
-    },
+		selected: function () {
+			return this.selectedItem;
+		},
+
+		addSubList: function ($listItem, $subList) {
+      var self = this;
+      
+			if (!$subList.is("ul")) {
+				console.error("specified sublist is not of type ul.");
+				return;
+			}
+
+      var $listItemWrapper = $listItem.find(".tree-view-list-item-wrapper");
+			var $listItemStatusIcon = $listItem.find(".tree-view-list-item-status");
+
+			$listItemStatusIcon
+				.empty()
+				.append($("<i>").addClass("fas fa-minus mr-2"));
+
+			$listItemWrapper
+				.addClass("tree-view-list-item-parent")
+				.click(function () {
+							self._toggleSubList($listItem, $subList, $listItemStatusIcon);
+				});
+
+			var parentLevel = $listItem.data("level");
+
+			$listItem.append($subList);
+			this._processItems($subList, parentLevel + 1);
+		},
 
 		_destroy: function () {},
 	});
