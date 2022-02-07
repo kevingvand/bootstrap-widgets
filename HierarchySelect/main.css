@@ -1,0 +1,30 @@
+.hierarchy-select {
+	list-style: none;
+	padding: 0;
+}
+
+.hierarchy-select-row {
+	display: flex;
+	justify-items: flex-start;
+    align-items: center;
+}
+
+.hierarchy-select-column {
+}
+
+.hierarchy-select-item {
+    padding: 5px;
+    background-color: gainsboro;
+    margin: 5px;
+}
+
+.hierarchy-select-vertical-dropper {
+	height: 10px;
+	background-color: gray;
+}
+
+.hierarchy-select-horizontal-dropper {
+	width: 10px;
+	height: 10px;
+	background-color: gray;
+}

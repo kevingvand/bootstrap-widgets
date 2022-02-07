@@ -132,6 +132,7 @@ $(function () {
 
 			var parentLevel = $listItem.data("level");
 
+      $subList.addClass("tree-view-sub-list");
 			$listItem.append($subList);
 			this._processItems($subList, parentLevel + 1);
 		},
