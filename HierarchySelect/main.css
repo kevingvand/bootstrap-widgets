@@ -7,24 +7,36 @@
 	display: flex;
 	justify-items: flex-start;
     align-items: center;
+	display: table;
+	min-height: 30px;
 }
 
 .hierarchy-select-column {
 }
 
 .hierarchy-select-item {
-    padding: 5px;
-    background-color: gainsboro;
-    margin: 5px;
+    padding: 3px 10px;
+    background-color: #9BC3B7;
+	color: white;
+	border-radius: .3em;
+	user-select: none;
+}
+
+.hierarchy-select-item:hover {
+	cursor: grab;
+}
+
+.hierarchy-select-item-dragging {
+	background-color: #928285;
 }
 
 .hierarchy-select-vertical-dropper {
 	height: 10px;
-	background-color: gray;
+	background-color: yellow;
 }
 
 .hierarchy-select-horizontal-dropper {
 	width: 10px;
-	height: 10px;
-	background-color: gray;
+	background-color: lavenderblush;
+	display: table-cell;
 }
