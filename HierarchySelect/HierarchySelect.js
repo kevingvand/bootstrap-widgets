@@ -23,10 +23,8 @@ $(function () {
 				return;
 			}
 
-			this.items = [...this.options.items];
-			this._sortItems();
-			
-			this._build();
+			document.items = this.items = [...this.options.items];
+			this._rebuild();
 		},
 
 		_sortItems: function () {
@@ -44,22 +42,26 @@ $(function () {
 				}
 			}
 
-			this.items.sort(getSort("verticalIndex"));
+			var resetIndex = function (items, property) {
+				items.sort(getSort(property));
 
-			var currentIndex = 1;
-			var definedIndex = -1;
-			this.items.forEach((item, index) => {
-				if(definedIndex == -1) definedIndex = item.verticalIndex;
+				var currentIndex = 0;
+				var definedIndex = -1;
+				items.forEach((item) => {
 
-				if(item.verticalIndex != currentIndex && item.verticalIndex == definedIndex && definedIndex != Number.MAX_SAFE_INTEGER)
-				{
-					item.verticalIndex = currentIndex;
-					return;
-				} 
+					if (currentIndex > 0 && item[property] != currentIndex && item[property] == definedIndex && definedIndex != Number.MAX_SAFE_INTEGER) {
+						item[property] = currentIndex;
+						return;
+					}
 
-				definedIndex = item.verticalIndex;
-				item.verticalIndex = ++currentIndex;
-			});
+					definedIndex = item[property];
+					item[property] = ++currentIndex;
+				});
+
+				return items;
+			}
+
+			resetIndex(this.items, "verticalIndex");
 
 			this.groupedItems = this.items.reduce((groups, item) => {
 				var group = (groups[item.verticalIndex] || []);
@@ -69,7 +71,7 @@ $(function () {
 			}, {});
 
 			Object.keys(this.groupedItems).forEach(row => {
-				this.groupedItems[row].sort(getSort("horizontalIndex"));
+				resetIndex(this.groupedItems[row], "horizontalIndex");
 			});
 		},
 
@@ -80,16 +82,24 @@ $(function () {
 
 			this._buildVerticalDropper(0);
 			Object.keys(this.groupedItems).forEach(row => {
-				self._buildRow(self.groupedItems[row]);
+				self._buildRow(row, self.groupedItems[row]);
 			});
 		},
 
-		_buildRow: function (items) {
+		_rebuild: function () {
+			this._sortItems();
+			this._build();
+		},
+
+		_buildRow: function (rowIndex, items) {
 			var column = this._buildColumn(items);
-			var $row = $("<li>").addClass("hierarchy-select-row").appendTo(this.root);
+			var $row = $("<li>")
+				.addClass("hierarchy-select-row")
+				.attr("data-index", rowIndex)
+				.appendTo(this.root);
 
 			this._buildColumn(items, $row);
-			this._buildVerticalDropper(1);
+			this._buildVerticalDropper(rowIndex);
 		},
 
 		_buildColumn: function (items, $row) {
@@ -104,21 +114,25 @@ $(function () {
 					.draggable({
 						revert: true,
 						helper: "clone",
+						appendTo: "body",
 						refreshPositions: true,
+						revertDuration: 0,
 						start: function (event, ui) {
 							$(this).addClass("hierarchy-select-item-dragging");
 						},
 						stop: function (event, ui) {
 							$(this).removeClass("hierarchy-select-item-dragging");
 							$(".hierarchy-select-horizontal-dropper").width("");
+							$(".hierarchy-select-vertical-dropper").height("");
 						}
 					});
 
-				self._buildHorizontalDropper(item.horizontalIndex + 1, $row);
+				self._buildHorizontalDropper(item.horizontalIndex, $row);
 			});
 		},
 
 		_buildVerticalDropper: function (index) {
+			var self = this;
 			var $dropper = $("<li>")
 				.addClass("hierarchy-select-vertical-dropper")
 				.attr("data-index", index)
@@ -128,15 +142,24 @@ $(function () {
 					tolerance: "pointer",
 					activeClass: "hierarchy-select-dropper-active",
 					drop: function (event, ui) {
+						var draggedItem = self.items.find(item => item.value == ui.draggable.data("value"));
+						var newVerticalIndex = $(this).data("index");
 
+						self._moveItemVertically(draggedItem, newVerticalIndex)
+						self._rebuild();
 					},
 					over: function (event, ui) {
-
+						var itemHeight = $(ui.draggable).height();
+						$(this).height(itemHeight + 20);
+					},
+					out: function (event, ui) {
+						$(this).height("")
 					}
 				});
 		},
 
 		_buildHorizontalDropper: function (index, $row) {
+			var self = this;
 			var dropper = $("<div>")
 				.addClass("hierarchy-select-horizontal-dropper")
 				.attr("data-index", index)
@@ -146,17 +169,56 @@ $(function () {
 					tolerance: "pointer",
 					activeClass: "hierarchy-select-dropper-active",
 					drop: function (event, ui) {
-
+						var draggedItem = self.items.find(item => item.value == ui.draggable.data("value"));
+						var newVerticalIndex = $(this).parents(".hierarchy-select-row").data("index");
+						var newHorizontalIndex = $(this).data("index");
+						
+						self._moveItemVertically(draggedItem, newVerticalIndex, true);
+						self._moveItemHorizontally(draggedItem, newHorizontalIndex);
+						self._rebuild();
 					},
 					over: function (event, ui) {
 						var itemWidth = $(ui.draggable).width();
-
 						$(this).width(itemWidth + 40);
 					},
 					out: function (event, ui) {
 						$(this).width("");
 					}
 				});
+		},
+
+		_moveItem: function (movedItem, newIndex, property, considerGrouping) {
+			var self = this;
+
+			var previousIndex = movedItem[property];
+			if (previousIndex == newIndex) {
+				var groupItems = self.items.filter(item => item[property] == previousIndex)
+				if (!considerGrouping || groupItems.length == 1) return;
+
+				groupItems.forEach(item => {
+					item[property] -= 1;
+				});
+			}
+
+			if (previousIndex >= newIndex) {
+				self.items.filter(item => item[property] > previousIndex).forEach(item => {
+					item[property] += 1;
+				});
+			} else if (previousIndex < newIndex) {
+				self.items.filter(item => item[property] > previousIndex && item[property] <= newIndex).forEach(item => {
+					item[property] -= 1;
+				});
+			}
+
+			movedItem[property] = newIndex;
+		},
+
+		_moveItemVertically: function (movedItem, newIndex, considerGrouping = true) {
+			this._moveItem(movedItem, newIndex, "verticalIndex", considerGrouping);
+		},
+
+		_moveItemHorizontally: function (movedItem, newIndex, considerGrouping = false) {
+			this._moveItem(movedItem, newIndex, "horizontalIndex", considerGrouping);
 		},
 
 		_destroy: function () { },

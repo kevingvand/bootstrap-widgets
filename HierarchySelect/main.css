@@ -6,12 +6,8 @@
 .hierarchy-select-row {
 	display: flex;
 	justify-items: flex-start;
-    align-items: center;
-	display: table;
+    align-items: stretch;
 	min-height: 30px;
-}
-
-.hierarchy-select-column {
 }
 
 .hierarchy-select-item {
@@ -36,7 +32,11 @@
 }
 
 .hierarchy-select-horizontal-dropper {
-	width: 10px;
+	min-width: 10px;
 	background-color: lavenderblush;
 	display: table-cell;
+}
+
+.hierarchy-select-row .hierarchy-select-horizontal-dropper:last-child {
+	flex-grow: 1;
 }
