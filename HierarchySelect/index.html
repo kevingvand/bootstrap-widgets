@@ -16,7 +16,7 @@
 
     <div class="container mt-5">
         <div class="row">
-            <ul id="select">
+            <ul id="select" class="w-100">
                 <li data-id="1">Item 1
                     <ul>
                         <li data-id="1">Sub 1</li>
@@ -48,7 +48,7 @@
             $("#select").hierarchySelect({
                 items: [
                     new HierarchySelectItem(1, "A very nice"),
-                    new HierarchySelectItem(2, "Beginning", 3),
+                    new HierarchySelectItem(2, "Beginning", 2, 3),
                     new HierarchySelectItem(3, "Could be", 2, 3),
                     new HierarchySelectItem(4, "Destroyed", 2, 1),
                     new HierarchySelectItem(5, "Easily"),
