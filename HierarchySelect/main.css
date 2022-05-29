@@ -1,0 +1,44 @@
+.hierarchy-select {
+	list-style: none;
+	padding: 0;
+}
+
+.hierarchy-select-row {
+	display: flex;
+	justify-items: flex-start;
+    align-items: stretch;
+	min-height: 30px;
+}
+
+.hierarchy-select-item {
+    padding: 3px 10px;
+    background-color: #9BC3B7;
+	color: white;
+	border-radius: .3em;
+	user-select: none;
+}
+
+.hierarchy-select-item:hover {
+	cursor: grab;
+}
+
+.hierarchy-select-item-dragging {
+	background-color: #928285;
+}
+
+.hierarchy-select-vertical-dropper {
+	min-height: 10px;
+}
+
+.hierarchy-select-horizontal-dropper {
+	min-width: 10px;
+	display: table-cell;
+}
+
+.hierarchy-select-row .hierarchy-select-horizontal-dropper:last-child {
+	flex-grow: 1;
+}
+
+.hierarchy-select-vertical-dropper:last-child {
+	min-height: 100%;
+}

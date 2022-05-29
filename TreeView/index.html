@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>TreeView Demo</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../Libraries/Bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../Libraries/jQueryUI/css/jquery-ui.min.css">
+    <link rel="stylesheet" href="main.css">
+    <script src="../Libraries/FontAwesome/fontawesome.js"></script>
+</head>
+
+<body>
+
+    <div class="container mt-5">
+        <div class="row">
+            <ul id="treeview">
+                <li data-id="1">Item 1
+                    <ul>
+                        <li data-id="1">Sub 1</li>
+                        <li data-id="2">Sub 2
+                            <ul>
+                                <li data-collapsed="true" data-id="3">Sub Sub 1
+                                <ul>
+                                    <li data-id="4">Sub Sub Sub 1</li>
+                                    <li data-id="5">Sub Sub Sub 2</li>
+                                </ul>>/li>
+                                <li data-id="6">Sub Sub 2</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>Item 2</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="../Libraries/jQuery/jquery-3.5.1.min.js"></script>
+    <script src="../Libraries/jQueryUI/js/jquery-ui.min.js"></script>
+    <script src="../Libraries/Bootstrap/js/bootstrap.min.js"></script>
+
+    <script src="TreeView.js"></script>
+
+    <script>
+        $(function () {
+            $("#treeview").treeView({
+                onItemToggle: function($listItem, $subList, isCollapsed) {
+                    
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
