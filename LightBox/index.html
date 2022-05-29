@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
+    <link rel="stylesheet" href="LightBox.css">
+    <script src="https://kit.fontawesome.com/bc51ad2e1e.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <div class="m-5">
+
+        <div id="light-box"></div>
+<!-- 
+        <div class="light-box-backdrop"></div>
+        <div class="light-box">
+          <div class="light-box-wrapper">
+            <button class="light-box-icon-button light-box-close-button">
+              <i class="fas fa-times" /></i>
+            </button>
+            <img src="https://picsum.photos/1920/1080" />
+            <button class="light-box-icon-button light-box-left-button">
+              <i class="fas fa-angle-left" /></i>
+            </button>
+            <button class="light-box-icon-button light-box-right-button">
+              <i class="fas fa-angle-right" /></i>
+            </button>
+          </div>
+        </div> -->
+
+    </div>
+
+    <script src="../jquery-3.4.1.js"></script>
+    <script src="../popper.min.js"></script>
+    <script src="../jquery-ui.js"></script>
+    <script src="../bootstrap.min.js"></script>
+    <script src="LightBox.js"></script>
+
+    <script>
+        $(function () {
+
+          function getRandomSize() {
+            return Math.round(Math.random() * 2000);
+          }
+
+
+          var externalSource = [];
+
+          for(var i = 0; i < 10; i++) {
+            externalSource.push(`https://picsum.photos/${getRandomSize()}/${getRandomSize()}`);
+          }
+
+        $("#light-box").lightBox({
+          // images: [
+          // "https://picsum.photos/1920/1080",
+          // "https://picsum.photos/1080/1920",
+          // "https://picsum.photos/1920/1920",
+          // "https://picsum.photos/200/500",
+          // "https://picsum.photos/1080/1080",
+          // ]
+          getRelativeSource: (relativeIndex) => {
+            
+            const isFirst = relativeIndex <= 1;
+            const isLast = relativeIndex >= externalSource.length - 2;
+
+            if(relativeIndex < 0) return [0, externalSource[0], isFirst, isLast];
+
+            if(relativeIndex >= externalSource.length) return [externalSource.length - 1, externalSource[externalSource.length - 1], isFirst, isLast];
+
+            return [relativeIndex, externalSource[relativeIndex], isFirst, isLast];
+          }
+        });
+        });
+    </script>
+</body>
+
+</html>

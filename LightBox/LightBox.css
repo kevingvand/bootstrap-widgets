@@ -1,0 +1,91 @@
+.light-box {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.light-box-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    opacity: .5;
+}
+
+.light-box-wrapper {
+    background-color: #fff;
+    padding: 10px;
+    position: relative;
+}
+
+.light-box-wrapper img {
+    max-height: 95vh;
+    max-width: 95vw;
+}
+
+.light-box-image-loader, .light-box-error-info {
+    width: 100px;
+    height: 100px;
+    font-size: 3rem;
+    float: right;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.light-box-error-info span {
+    font-size: .8rem;
+    float: left;
+    text-align: center;
+}
+
+.light-box.light-box-error .light-box-icon-button, .light-box.light-box-loading .light-box-icon-button, .light-box-icon-button.light-box-icon-button-hidden {
+    display: none !important;
+}
+
+.light-box-icon-button {
+    font-size: 1.5rem;
+    color: #000;
+    background-color: white;
+    border: 0;
+    padding: 5px 15px;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .5;
+    outline: none;
+    position: absolute;
+}
+
+.light-box-icon-button:focus, .light-box-icon-button:active {
+    outline: none;
+}
+
+.light-box-icon-button:hover {
+    color: #000;
+    opacity: .75;
+    text-decoration: none;
+}
+
+.light-box-close-button {
+    right: 20px;
+    top: 20px;
+}
+
+.light-box-left-button {
+    top: 48%;
+    left: 20px;
+}
+
+.light-box-right-button {
+    top: 48%;
+    right: 20px;
+}
